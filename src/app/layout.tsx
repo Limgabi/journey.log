@@ -1,3 +1,4 @@
+import StyleProvider from '@/providers/StyleProvider';
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
@@ -19,7 +20,9 @@ export default function RootLayout({
         <link rel="manifest" href="/manifest.json" />
         <meta name="theme-color" content="#ffffff" />
       </head>
-      <body className={inter.className}>{children}</body>
+      <body className={inter.className}>
+        <StyleProvider>{children}</StyleProvider>
+      </body>
     </html>
   );
 }
