@@ -1,12 +1,12 @@
-import StyleProvider from '@/providers/StyleProvider';
-import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import Providers from "@/providers";
+import type { Metadata } from "next";
+import { Inter } from "next/font/google";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'journey.log',
-  description: '',
+  title: "journey.log",
+  description: "",
 };
 
 export default function RootLayout({
@@ -21,7 +21,7 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body className={inter.className}>
-        <StyleProvider>{children}</StyleProvider>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );
