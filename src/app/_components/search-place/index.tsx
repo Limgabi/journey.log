@@ -1,17 +1,17 @@
-'use client';
+"use client";
 
-import { ADMINISTRATIVE_DISTRICT } from '@/constants/administrative-district';
-import React, { useState } from 'react';
-import RegionList from './components/RegionList';
-import * as S from './index.style';
-import LabelButton from './components/LabelButton';
+import { ADMINISTRATIVE_DISTRICT } from "@/constants/administrative-district";
+import React, { useState } from "react";
+import RegionList from "./components/RegionList";
+import * as S from "./index.style";
+import LabelButton from "./components/LabelButton";
 
-export default function Record() {
-  const [searchText, setSearchText] = useState('');
+export default function SearchPlace() {
+  const [searchText, setSearchText] = useState("");
 
   const [selected, setSelected] = useState({
-    region: '',
-    district: '',
+    region: "",
+    district: "",
   });
 
   return (
@@ -20,13 +20,13 @@ export default function Record() {
         {selected.region && (
           <LabelButton
             value={selected.region}
-            onClick={() => setSelected({ region: '', district: '' })}
+            onClick={() => setSelected({ region: "", district: "" })}
           />
         )}
         {selected.district && (
           <LabelButton
             value={selected.district}
-            onClick={() => setSelected((prev) => ({ ...prev, district: '' }))}
+            onClick={() => setSelected((prev) => ({ ...prev, district: "" }))}
           />
         )}
         <input
@@ -36,9 +36,9 @@ export default function Record() {
         />
       </S.InputWrapper>
 
-      {!selected.region && searchText !== '' && (
+      {!selected.region && searchText !== "" && (
         <RegionList
-          type={'region'}
+          type={"region"}
           data={Object.keys(ADMINISTRATIVE_DISTRICT).filter((region) =>
             region.includes(searchText)
           )}
@@ -47,7 +47,7 @@ export default function Record() {
         />
       )}
       <br />
-      {selected.region && searchText !== '' && !selected.district && (
+      {selected.region && searchText !== "" && !selected.district && (
         <RegionList
           type="district"
           data={ADMINISTRATIVE_DISTRICT[selected.region]?.filter((district) =>
