@@ -1,4 +1,4 @@
-import styled, { css } from 'styled-components';
+import styled, { css } from "styled-components";
 
 interface RegionListProps {
   data: string[];
@@ -12,7 +12,7 @@ interface RegionListProps {
     region: string;
     district: string;
   };
-  type: 'region' | 'district';
+  type: "region" | "district";
 }
 
 export default function RegionList({
@@ -27,9 +27,9 @@ export default function RegionList({
         <ListContent
           key={value}
           onClick={() => {
-            if (type === 'region') {
-              onSelect((prev) => ({ ...prev, region: value, district: '' }));
-            } else if (type === 'district') {
+            if (type === "region") {
+              onSelect((prev) => ({ ...prev, region: value, district: "" }));
+            } else if (type === "district") {
               onSelect((prev) => ({ ...prev, district: value }));
             }
           }}
