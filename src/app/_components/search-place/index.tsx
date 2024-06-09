@@ -6,7 +6,7 @@ import RegionList from './components/RegionList';
 import * as S from './index.style';
 import LabelButton from './components/LabelButton';
 
-export default function Record() {
+export default function SearchPlace() {
 	const [searchText, setSearchText] = useState('');
 
 	const [selected, setSelected] = useState({
