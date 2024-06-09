@@ -9,12 +9,12 @@ import { GlobalStyle } from '@/styles/global';
 import theme from '@/styles/theme';
 
 export default function StyleProvider({ children }: PropsWithChildren) {
-  return (
-    <StyledComponentsRegistry>
-      <ThemeProvider theme={theme}>
-        <GlobalStyle />
-        {children}
-      </ThemeProvider>
-    </StyledComponentsRegistry>
-  );
+	return (
+		<StyledComponentsRegistry>
+			<ThemeProvider theme={theme}>
+				<GlobalStyle />
+				{children}
+			</ThemeProvider>
+		</StyledComponentsRegistry>
+	);
 }
