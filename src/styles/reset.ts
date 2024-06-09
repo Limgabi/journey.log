@@ -1,8 +1,5 @@
 import { css } from 'styled-components';
 
-import { displayWidth } from './common';
-import theme from './theme';
-
 // prettier-ignore
 // reference : https://ykss.netlify.app/translation/a_more_modern_css_reset/
 
