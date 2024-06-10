@@ -1,10 +1,11 @@
 'use client';
 
 import { ADMINISTRATIVE_DISTRICT } from '@/constants/administrative-district';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import RegionList from './components/RegionList';
 import * as S from './index.style';
 import LabelButton from './components/LabelButton';
+import { getDistrict } from '@/app/_api/search';
 
 export default function SearchPlace() {
 	const [searchText, setSearchText] = useState('');
@@ -13,6 +14,10 @@ export default function SearchPlace() {
 		region: '',
 		district: '',
 	});
+
+	useEffect(() => {
+		getDistrict();
+	}, []);
 
 	return (
 		<div>
