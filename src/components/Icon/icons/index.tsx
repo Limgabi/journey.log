@@ -1,1 +1,14 @@
-export { default as CloseOutlined } from './CloseOutlined';
+export { default as Arrow } from './Arrow';
+export { default as Bookmark } from './Bookmark';
+export { default as Category } from './Category';
+export { default as Check } from './Check';
+export { default as Chevron } from './Chevron';
+export { default as Clear } from './Clear';
+export { default as Copy } from './Copy';
+export { default as Heart } from './Heart';
+export { default as Home } from './Home';
+export { default as Location } from './Location';
+export { default as Profile } from './Profile';
+export { default as Search } from './Search';
+export { default as Trash } from './Trash';
+export { default as Write } from './Write';
