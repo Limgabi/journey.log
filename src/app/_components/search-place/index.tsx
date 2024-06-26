@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import * as S from './index.style';
-import { useGetDistrict } from '@/app/_api/search';
+import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
 
 interface DistrictDropdown {
 	properties: {
@@ -30,7 +30,7 @@ export default function SearchPlace() {
 	const [isGoogleApiLoaded, setIsGoogleApiLoaded] = useState(false);
 	const [coords, setCoords] = useState({ lat: 0, lng: 0 });
 
-	const { data } = useGetDistrict(params);
+	const { data } = useGetDistrictAPI(params);
 
 	const handleClickAd = (data: { name: string; code: string }) => {
 		if (!adsido.code && !adsigg.code && !ademd.code && !adri.code) {
@@ -133,8 +133,17 @@ export default function SearchPlace() {
 		});
 	};
 
-	const handleSearch = () => {
-		geocode(`${adsido.name} ${adsigg.name} ${ademd.name} ${adri.name}`);
+	const handleSearch = async () => {
+		await geocode(`${adsido.name} ${adsigg.name} ${ademd.name} ${adri.name}`);
+
+		if (searchText) {
+			const res = await useGetSearchKeywordAPI({
+				x: coords.lng,
+				y: coords.lat,
+				keyword: searchText,
+			});
+			console.log(res);
+		}
 	};
 
 	return (
