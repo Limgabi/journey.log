@@ -1,16 +1,28 @@
 import Icon from '@/components/Icon';
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
-export default function LabelButton({ value, onClick }: any) {
+interface LabelButtonProps {
+	type?: 'primary' | 'secondary';
+	value: string;
+	onClick: () => void;
+}
+
+export default function LabelButton({ value, onClick, type }: LabelButtonProps) {
 	return (
-		<LabelButtonWrapper onClick={onClick}>
-			<Icon icon="CloseOutlined" width={14} height={14} color="#1b64da" cursor="pointer" />
+		<LabelButtonWrapper onClick={onClick} type={type}>
+			<Icon
+				icon="Close"
+				width={8}
+				height={8}
+				color={type === 'secondary' ? '#4e5968' : '#1b64da'}
+				cursor="pointer"
+			/>
 			{value}
 		</LabelButtonWrapper>
 	);
 }
 
-const LabelButtonWrapper = styled.button`
+const LabelButtonWrapper = styled.button<{ type?: string }>`
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
@@ -23,4 +35,11 @@ const LabelButtonWrapper = styled.button`
 
 	outline: none;
 	border: none;
+
+	${({ type }) =>
+		type === 'secondary' &&
+		css`
+			background-color: #f2f4f6;
+			color: #4e5968;
+		`}
 `;
