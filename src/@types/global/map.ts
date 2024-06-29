@@ -1,3 +1,3 @@
 interface Window {
-	initMap: () => void;
+  initMap: () => void;
 }

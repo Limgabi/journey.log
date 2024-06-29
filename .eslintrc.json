@@ -1,88 +1,88 @@
 {
-	"env": {
-		"browser": true,
-		"es2021": true
-	},
-	"plugins": ["react", "react-hooks", "@typescript-eslint", "import", "prettier"],
-	"extends": [
-		"prettier",
-		"plugin:react/recommended",
-		"plugin:@typescript-eslint/recommended",
-		"plugin:prettier/recommended",
-		"next/core-web-vitals"
-	],
-	"parser": "@typescript-eslint/parser",
-	"parserOptions": {
-		"ecmaFeatures": {
-			"jsx": true
-		},
-		"ecmaVersion": 2020,
-		"sourceType": "module"
-	},
-	"rules": {
-		"react/no-unescaped-entities": "off",
-		"react-hooks/exhaustive-deps": "off",
-		"react/display-name": "off",
-		"@typescript-eslint/no-explicit-any": "warn",
-		"@typescript-eslint/no-unused-vars": "warn",
+  "env": {
+    "browser": true,
+    "es2021": true
+  },
+  "plugins": ["react", "react-hooks", "@typescript-eslint", "import", "prettier"],
+  "extends": [
+    "prettier",
+    "plugin:react/recommended",
+    "plugin:@typescript-eslint/recommended",
+    "plugin:prettier/recommended",
+    "next/core-web-vitals"
+  ],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2020,
+    "sourceType": "module"
+  },
+  "rules": {
+    "react/no-unescaped-entities": "off",
+    "react-hooks/exhaustive-deps": "off",
+    "react/display-name": "off",
+    "@typescript-eslint/no-explicit-any": "warn",
+    "@typescript-eslint/no-unused-vars": "warn",
 
-		"no-restricted-imports": [
-			"error",
-			{
-				"patterns": ["*.ts", "*.tsx"],
-				"paths": [
-					{
-						"name": "react",
-						"importNames": ["default"],
-						"message": "Redundant import React from 'react' makes bundle size larger."
-					}
-				]
-			}
-		],
+    "no-restricted-imports": [
+      "error",
+      {
+        "patterns": ["*.ts", "*.tsx"],
+        "paths": [
+          {
+            "name": "react",
+            "importNames": ["default"],
+            "message": "Redundant import React from 'react' makes bundle size larger."
+          }
+        ]
+      }
+    ],
 
-		"import/order": [
-			"error",
-			{
-				"groups": [
-					"builtin",
-					"external",
-					"internal",
-					["parent", "sibling"],
-					"index",
-					"object",
-					"type",
-					"unknown"
-				],
-				"pathGroups": [
-					{
-						"pattern": "{react*,react*/**}",
-						"group": "builtin",
-						"position": "after"
-					},
-					{
-						"pattern": "{next*,next*/**}",
-						"group": "builtin",
-						"position": "after"
-					},
-					{
-						"pattern": "{./**/*.styles,../**/*.styles,*.styles}",
-						"group": "unknown",
-						"position": "after"
-					}
-				],
-				"pathGroupsExcludedImportTypes": ["builtin", "unknown"],
-				"newlines-between": "always",
-				"alphabetize": {
-					"order": "asc",
-					"caseInsensitive": true
-				}
-			}
-		]
-	},
-	"settings": {
-		"react": {
-			"version": "detect"
-		}
-	},
-	"ignorePatterns": [".next/**"]
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin",
+          "external",
+          "internal",
+          ["parent", "sibling"],
+          "index",
+          "object",
+          "type",
+          "unknown"
+        ],
+        "pathGroups": [
+          {
+            "pattern": "{react*,react*/**}",
+            "group": "builtin",
+            "position": "after"
+          },
+          {
+            "pattern": "{next*,next*/**}",
+            "group": "builtin",
+            "position": "after"
+          },
+          {
+            "pattern": "{./**/*.styles,../**/*.styles,*.styles}",
+            "group": "unknown",
+            "position": "after"
+          }
+        ],
+        "pathGroupsExcludedImportTypes": ["builtin", "unknown"],
+        "newlines-between": "always",
+        "alphabetize": {
+          "order": "asc",
+          "caseInsensitive": true
+        }
+      }
+    ]
+  },
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
+  },
+  "ignorePatterns": [".next/**"]
 }
