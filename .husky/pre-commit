@@ -1,0 +1,27 @@
+#!/usr/bin/env sh
+
+# 프리티어, 린트, 타입 검사
+check_prettier='npm run check:prettier'
+check_lint='npm run check:lint'
+check_type='npm run check:type'
+
+# Prettier 검사 실행
+${check_prettier}
+if [ $? -ne 0 ]; then
+  echo "Prettier check failed."
+  exit 1
+fi
+
+# Lint 검사 실행
+${check_lint}
+if [ $? -ne 0 ]; then
+  echo "Lint check failed."
+  exit 1
+fi
+
+# Type 검사 실행
+${check_type}
+if [ $? -ne 0 ]; then
+  echo "Type check failed."
+  exit 1
+fi
