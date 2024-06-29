@@ -1,3 +1,3 @@
 export const URL_PATH = {
-  SEARCH_PLACE: "search-place",
+  SEARCH_PLACE: 'search-place',
 };

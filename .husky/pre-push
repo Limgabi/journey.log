@@ -1,0 +1,11 @@
+#!/usr/bin/env sh
+
+# 빌드 검사
+build='npm run build'
+
+# 빌드 검사 실행
+${build}
+if [ $? -ne 0 ]; then
+  echo "Build failed."
+  exit 1
+fi
