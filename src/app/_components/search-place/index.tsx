@@ -1,13 +1,15 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
-import * as S from './index.style';
+import { useState, useEffect } from 'react';
+
 import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
-import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
-import LabelButton from './components/LabelButton';
-import RegionList from './components/RegionList';
 import Input from '@/components/Input';
 import Select from '@/components/Select';
+import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
+
+import LabelButton from './components/LabelButton';
+import RegionList from './components/RegionList';
+import * as S from './index.style';
 
 interface DistrictDropdown {
 	properties: {

@@ -1,5 +1,6 @@
-import { URL_PATH } from '@/constants/url-path';
 import Link from 'next/link';
+
+import { URL_PATH } from '@/constants/url-path';
 
 export default function Home() {
 	return (

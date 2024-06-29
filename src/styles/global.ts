@@ -5,16 +5,16 @@ import { createGlobalStyle } from 'styled-components';
 import reset from './reset';
 
 export const GlobalStyle = createGlobalStyle`
-  ${reset}
+	${reset}
 
-  body {
-    .ant-select-item-option-content {
-      overflow: visible !important;
-      white-space: normal !important;
-      word-break: keep-all !important;
-	  }
-  }
-  
+	body {
+		.ant-select-item-option-content {
+			overflow: visible !important;
+			white-space: normal !important;
+			word-break: keep-all !important;
+		}
+	}
+
 	h1 {
 		font-size: 3.2rem;
 		font-weight: 700;
@@ -27,7 +27,6 @@ export const GlobalStyle = createGlobalStyle`
 		font-size: 1.8rem;
 		font-weight: 500;
 	}
-
 	h4 {
 		font-size: 1.6rem;
 		font-weight: 500;

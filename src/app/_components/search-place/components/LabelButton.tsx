@@ -1,5 +1,6 @@
-import Icon from '@/components/Icon';
 import styled, { css } from 'styled-components';
+
+import Icon from '@/components/Icon';
 
 interface LabelButtonProps {
 	type?: 'primary' | 'secondary';

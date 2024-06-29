@@ -3,7 +3,7 @@ import styled, { css } from 'styled-components';
 interface SelectProps {
 	options: { id: string; value: string }[];
 	selected: { id: string; value: string }[];
-	onSelect: any;
+	onSelect: (option: { id: string; value: string }) => void;
 }
 
 export default function Select({ options, selected, onSelect }: SelectProps) {
