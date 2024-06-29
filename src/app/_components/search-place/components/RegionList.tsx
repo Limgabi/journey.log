@@ -1,36 +1,16 @@
 import styled, { css } from 'styled-components';
 
 interface RegionListProps {
-	data: string[];
-	onSelect: React.Dispatch<
-		React.SetStateAction<{
-			region: string;
-			district: string;
-		}>
-	>;
-	selected: {
-		region: string;
-		district: string;
-	};
-	type: 'region' | 'district';
+	data: { name: string; code: string }[];
+	onSelect: (data: { name: string; code: string }) => void;
 }
 
-export default function RegionList({ data, onSelect, selected, type }: RegionListProps) {
+export default function RegionList({ data, onSelect }: RegionListProps) {
 	return (
 		<List>
-			{data.map(value => (
-				<ListContent
-					key={value}
-					onClick={() => {
-						if (type === 'region') {
-							onSelect(prev => ({ ...prev, region: value, district: '' }));
-						} else if (type === 'district') {
-							onSelect(prev => ({ ...prev, district: value }));
-						}
-					}}
-					selected={selected[type] === value}
-				>
-					{value}
+			{data.map((option, idx) => (
+				<ListContent key={`${idx}-${option.code}`} onClick={() => onSelect(option)}>
+					{option.name}
 				</ListContent>
 			))}
 		</List>
@@ -50,7 +30,7 @@ const List = styled.ul`
 		0px 9px 28px 8px rgba(0, 0, 0, 0.05);
 `;
 
-const ListContent = styled.li<{ selected: boolean }>`
+const ListContent = styled.li`
 	padding: 0.6rem 1.2rem;
 	border-radius: ${({ theme }) => theme.borderRadius.sm};
 
@@ -62,11 +42,4 @@ const ListContent = styled.li<{ selected: boolean }>`
 	&:hover {
 		background-color: #0000000f;
 	}
-
-	${({ selected }) =>
-		selected &&
-		css`
-			background-color: #e8f3ff;
-			color: #1b64da;
-		`}
 `;

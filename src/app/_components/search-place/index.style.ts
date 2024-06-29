@@ -1,22 +1,35 @@
 import styled from 'styled-components';
 
+export const MainWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	align-items: center;
+	justify-content: center;
+`;
+
 export const InputWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 0.4rem;
+`;
+
+export const LabelContainer = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
 `;
 
-export const LabelButton = styled.button`
+export const InputContainer = styled.div`
 	display: flex;
 	align-items: center;
 	gap: 0.4rem;
-	padding: 0.4rem;
+`;
 
-	border-radius: ${({ theme }) => theme.borderRadius.xs};
-	font-size: 1.4rem;
-	background-color: #e8f3ff;
-	color: #1b64da;
-
-	outline: none;
-	border: none;
+export const PlaceWrapper = styled.div`
+	display: flex;
+	flex-direction: column;
+	gap: 1.2rem;
+	align-items: center;
 `;

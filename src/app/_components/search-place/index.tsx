@@ -4,6 +4,10 @@ import React, { useState, useEffect } from 'react';
 import * as S from './index.style';
 import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
 import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
+import LabelButton from './components/LabelButton';
+import RegionList from './components/RegionList';
+import Input from '@/components/Input';
+import Select from '@/components/Select';
 
 interface DistrictDropdown {
 	properties: {
@@ -23,50 +27,114 @@ export default function SearchPlace() {
 	const [searchText, setSearchText] = useState('');
 	const [params, setParams] = useState<{ data: string; attrFilter?: string }>();
 	const [dropdown, setDropdown] = useState<{ name: string; code: string }[]>([]);
-	const [adsido, setAdsido] = useState({ name: '', code: '' });
-	const [adsigg, setAdsigg] = useState({ name: '', code: '' });
-	const [ademd, setAdemd] = useState({ name: '', code: '' });
-	const [adri, setAdri] = useState({ name: '', code: '' });
+	const [regions, setRegions] = useState({
+		adsido: { name: '', code: '' },
+		adsigg: { name: '', code: '' },
+		ademd: { name: '', code: '' },
+		adri: { name: '', code: '' },
+	});
+	const [selectedPlace, setSelectedPlace] = useState<{ id: string; value: string }[]>([]);
 
 	const [isGoogleApiLoaded, setIsGoogleApiLoaded] = useState(false);
 	const [coords, setCoords] = useState({ lat: 0, lng: 0 });
 
 	const { data } = useGetDistrictAPI(params);
+	const { data: searchKeywordData } = useGetSearchKeywordAPI({
+		x: coords.lng,
+		y: coords.lat,
+		query: searchText,
+	});
 
 	const handleClickAd = (data: { name: string; code: string }) => {
-		if (!adsido.code && !adsigg.code && !ademd.code && !adri.code) {
-			setAdsido(data);
-		} else if (adsido.code && !adsigg.code && !ademd.code && !adri.code) {
-			setAdsigg(data);
-		} else if (adsido.code && adsigg.code && !ademd.code && !adri.code) {
-			setAdemd(data);
-		} else if (adsido.code && adsigg.code && ademd.code && !adri.code) {
-			setAdri(data);
+		if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
+			setRegions(prev => ({ ...prev, adsido: data }));
+		} else if (
+			regions.adsido.code &&
+			!regions.adsigg.code &&
+			!regions.ademd.code &&
+			!regions.adri.code
+		) {
+			setRegions(prev => ({ ...prev, adsigg: data }));
+		} else if (
+			regions.adsido.code &&
+			regions.adsigg.code &&
+			!regions.ademd.code &&
+			!regions.adri.code
+		) {
+			setRegions(prev => ({ ...prev, ademd: data }));
+		} else if (
+			regions.adsido.code &&
+			regions.adsigg.code &&
+			regions.ademd.code &&
+			!regions.adri.code
+		) {
+			setRegions(prev => ({ ...prev, adri: data }));
+		}
+	};
+
+	const handleRemoveAd = (level: string) => {
+		if (level === 'adsido') {
+			setRegions({
+				adsido: { name: '', code: '' },
+				adsigg: { name: '', code: '' },
+				ademd: { name: '', code: '' },
+				adri: { name: '', code: '' },
+			});
+		} else if (level === 'adsigg') {
+			setRegions(prev => ({
+				...prev,
+				adsigg: { name: '', code: '' },
+				ademd: { name: '', code: '' },
+				adri: { name: '', code: '' },
+			}));
+		} else if (level === 'ademd') {
+			setRegions(prev => ({
+				...prev,
+				ademd: { name: '', code: '' },
+				adri: { name: '', code: '' },
+			}));
+		} else if (level === 'adri') {
+			setRegions(prev => ({ ...prev, adri: { name: '', code: '' } }));
 		}
 	};
 
 	useEffect(() => {
 		let dropdownData: { name: string; code: string }[] = [];
 
-		if (!adsido.code && !adsigg.code && !ademd.code && !adri.code) {
+		if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
 			dropdownData =
 				data?.map((e: DistrictDropdown) => ({
 					name: e.properties.ctp_kor_nm || '',
 					code: e.properties.ctprvn_cd || '',
 				})) || [];
-		} else if (adsido.code && !adsigg.code && !ademd.code && !adri.code) {
+		} else if (
+			regions.adsido.code &&
+			!regions.adsigg.code &&
+			!regions.ademd.code &&
+			!regions.adri.code
+		) {
 			dropdownData =
 				data?.map((e: DistrictDropdown) => ({
 					name: e.properties.sig_kor_nm || '',
 					code: e.properties.sig_cd || '',
 				})) || [];
-		} else if (adsido.code && adsigg.code && !ademd.code && !adri.code) {
+		} else if (
+			regions.adsido.code &&
+			regions.adsigg.code &&
+			!regions.ademd.code &&
+			!regions.adri.code
+		) {
 			dropdownData =
 				data?.map((e: DistrictDropdown) => ({
 					name: e.properties.emd_kor_nm || '',
 					code: e.properties.emd_cd || '',
 				})) || [];
-		} else if (adsido.code && adsigg.code && ademd.code && !adri.code) {
+		} else if (
+			regions.adsido.code &&
+			regions.adsigg.code &&
+			regions.ademd.code &&
+			!regions.adri.code
+		) {
 			dropdownData =
 				data?.map((e: DistrictDropdown) => ({
 					name: e.properties.li_kor_nm || '',
@@ -75,27 +143,42 @@ export default function SearchPlace() {
 		}
 
 		setDropdown(dropdownData);
-	}, [data, adsido, adsigg, ademd, adri]);
+	}, [data, regions]);
 
 	useEffect(() => {
 		let dataParam: string = '';
 		let attrFilterParam: string | undefined = undefined;
 
-		if (!adsido.code && !adsigg.code && !ademd.code && !adri.code) {
+		if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
 			dataParam = 'LT_C_ADSIDO_INFO';
-		} else if (adsido.code && !adsigg.code && !ademd.code && !adri.code) {
+		} else if (
+			regions.adsido.code &&
+			!regions.adsigg.code &&
+			!regions.ademd.code &&
+			!regions.adri.code
+		) {
 			dataParam = 'LT_C_ADSIGG_INFO';
-			attrFilterParam = `sig_cd:like:${adsido.code}`;
-		} else if (adsido.code && adsigg.code && !ademd.code && !adri.code) {
+			attrFilterParam = `sig_cd:like:${regions.adsido.code}`;
+		} else if (
+			regions.adsido.code &&
+			regions.adsigg.code &&
+			!regions.ademd.code &&
+			!regions.adri.code
+		) {
 			dataParam = 'LT_C_ADEMD_INFO';
-			attrFilterParam = `emd_cd:like:${adsigg.code}`;
-		} else if (adsido.code && adsigg.code && ademd.code && !adri.code) {
+			attrFilterParam = `emd_cd:like:${regions.adsigg.code}`;
+		} else if (
+			regions.adsido.code &&
+			regions.adsigg.code &&
+			regions.ademd.code &&
+			!regions.adri.code
+		) {
 			dataParam = 'LT_C_ADRI_INFO';
-			attrFilterParam = `li_cd:like:${ademd.code}`;
+			attrFilterParam = `li_cd:like:${regions.ademd.code}`;
 		}
 
 		setParams({ data: dataParam, attrFilter: attrFilterParam });
-	}, [adsido, adsigg, ademd, adri]);
+	}, [regions]);
 
 	useEffect(() => {
 		loadGoogleMapsScript(() => {
@@ -123,35 +206,100 @@ export default function SearchPlace() {
 		});
 	};
 
-	const handleSearch = async () => {
-		await geocode(`${adsido.name} ${adsigg.name} ${ademd.name} ${adri.name}`);
+	const handleChangeSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
+		setSearchText(e.target.value);
+	};
 
-		if (searchText) {
-			const res = await useGetSearchKeywordAPI({
-				x: coords.lng,
-				y: coords.lat,
-				keyword: searchText,
-			});
-			console.log(res);
-		}
+	const handleSearch = async () => {
+		await geocode(
+			`${regions.adsido.name} ${regions.adsigg.name} ${regions.ademd.name} ${regions.adri.name}`,
+		);
+	};
+
+	const handleSelectPlace = (option: { id: string; value: string }) => {
+		setSelectedPlace(prev => {
+			const isAlreadySelected = prev.some(place => place.id === option.id);
+			if (isAlreadySelected) {
+				return prev.filter(place => place.id !== option.id);
+			} else {
+				return [...prev, option];
+			}
+		});
+	};
+
+	const handleDeletePlace = (id: string) => {
+		setSelectedPlace(prev => prev.filter(place => place.id !== id));
 	};
 
 	return (
-		<div>
+		<S.MainWrapper>
+			<h2>기록할 여행 지역을 선택하세요</h2>
 			<S.InputWrapper>
-				<div>{`${adsido.name} ${adsigg.name} ${ademd.name} ${adri.name}`}</div>
-				<input type="text" value={searchText} onChange={e => setSearchText(e.target.value)} />
-				<button onClick={handleSearch} disabled={!isGoogleApiLoaded}>
-					Search
-				</button>
+				<S.LabelContainer>
+					{regions.adsido.name && (
+						<LabelButton
+							value={regions.adsido.name}
+							onClick={() => handleRemoveAd('adsido')}
+							type="secondary"
+						/>
+					)}
+					{regions.adsigg.name && (
+						<LabelButton
+							value={regions.adsigg.name}
+							onClick={() => handleRemoveAd('adsigg')}
+							type="secondary"
+						/>
+					)}
+					{regions.ademd.name && (
+						<LabelButton
+							value={regions.ademd.name}
+							onClick={() => handleRemoveAd('ademd')}
+							type="secondary"
+						/>
+					)}
+					{regions.adri.name && (
+						<LabelButton
+							value={regions.adri.name}
+							onClick={() => handleRemoveAd('adri')}
+							type="secondary"
+						/>
+					)}
+				</S.LabelContainer>
 			</S.InputWrapper>
-			<ul>
-				{dropdown.map((data, idx) => (
-					<li key={idx} onClick={() => handleClickAd(data)}>
-						{data.name}
-					</li>
-				))}
-			</ul>
-		</div>
+
+			{!!regions.adsido.name && !!regions.adsido.name && (
+				<S.PlaceWrapper>
+					<h3>기록할 장소를 선택하세요</h3>
+					<Input
+						type="search"
+						value={searchText}
+						handleChange={handleChangeSearchText}
+						handleSearch={handleSearch}
+					/>
+					<S.LabelContainer>
+						{selectedPlace.map(place => (
+							<LabelButton
+								key={place.id}
+								value={place.value}
+								onClick={() => handleDeletePlace(place.id)}
+							/>
+						))}
+					</S.LabelContainer>
+				</S.PlaceWrapper>
+			)}
+
+			{searchKeywordData?.documents && searchKeywordData?.documents.length > 0 ? (
+				<Select
+					options={searchKeywordData?.documents.map(option => ({
+						id: option.id,
+						value: option.place_name,
+					}))}
+					selected={selectedPlace}
+					onSelect={handleSelectPlace}
+				/>
+			) : (
+				<RegionList data={dropdown} onSelect={handleClickAd} />
+			)}
+		</S.MainWrapper>
 	);
 }

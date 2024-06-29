@@ -4,6 +4,7 @@ export { default as Category } from './Category';
 export { default as Check } from './Check';
 export { default as Chevron } from './Chevron';
 export { default as Clear } from './Clear';
+export { default as Close } from './Close';
 export { default as Copy } from './Copy';
 export { default as Heart } from './Heart';
 export { default as Home } from './Home';
