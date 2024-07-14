@@ -1,3 +1,5 @@
+import { forwardRef } from 'react';
+
 import styled, { css } from 'styled-components';
 
 interface SelectProps {
@@ -6,9 +8,9 @@ interface SelectProps {
   onSelect: (option: { id: string; value: string }) => void;
 }
 
-export default function Select({ options, selected, onSelect }: SelectProps) {
+const Select = forwardRef<HTMLDivElement, SelectProps>(({ options, selected, onSelect }, ref) => {
   return (
-    <SelectWrapper>
+    <SelectWrapper ref={ref}>
       {options.map(option => (
         <SelectOption
           key={option.id}
@@ -20,7 +22,9 @@ export default function Select({ options, selected, onSelect }: SelectProps) {
       ))}
     </SelectWrapper>
   );
-}
+});
+
+export default Select;
 
 const SelectWrapper = styled.div`
   display: flex;

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
 import Input from '@/components/Input';
@@ -26,6 +26,8 @@ interface DistrictDropdown {
 }
 
 export default function SearchPlace() {
+  const selectRef = useRef<HTMLDivElement>(null);
+
   const [searchText, setSearchText] = useState('');
   const [params, setParams] = useState<{ data: string; attrFilter?: string }>();
   const [dropdown, setDropdown] = useState<{ name: string; code: string }[]>([]);
@@ -46,6 +48,35 @@ export default function SearchPlace() {
     y: coords.lat,
     query: searchText,
   });
+
+  /**
+   * select 외부 클릭 감지
+   */
+  const [isShow, setIsShow] = useState(false);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
+        setIsShow(false);
+      }
+    };
+
+    if (isShow) {
+      document.addEventListener('mousedown', handleClickOutside);
+    } else {
+      document.removeEventListener('mousedown', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [selectRef, isShow]);
+
+  useEffect(() => {
+    if (searchKeywordData?.documents && searchKeywordData?.documents.length > 0) {
+      setIsShow(true);
+    }
+  }, [searchKeywordData]);
 
   const handleClickAd = (data: { name: string; code: string }) => {
     if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
@@ -277,6 +308,11 @@ export default function SearchPlace() {
             value={searchText}
             handleChange={handleChangeSearchText}
             handleSearch={handleSearch}
+            onClick={() => {
+              if (!isShow && searchKeywordData) {
+                setIsShow(true);
+              }
+            }}
           />
           <S.LabelContainer>
             {selectedPlace.map(place => (
@@ -290,8 +326,9 @@ export default function SearchPlace() {
         </S.PlaceWrapper>
       )}
 
-      {searchKeywordData?.documents && searchKeywordData?.documents.length > 0 ? (
+      {searchKeywordData?.documents && isShow ? (
         <Select
+          ref={selectRef}
           options={searchKeywordData?.documents.map(option => ({
             id: option.id,
             value: option.place_name,
