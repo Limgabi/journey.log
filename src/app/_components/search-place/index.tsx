@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
 import Input from '@/components/Input';
+import { MotionDiv } from '@/components/Motion';
 import Select from '@/components/Select';
 import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
 
@@ -265,80 +266,82 @@ export default function SearchPlace() {
   };
 
   return (
-    <S.MainWrapper>
-      <h2>기록할 여행 지역을 선택하세요</h2>
-      <S.InputWrapper>
-        <S.LabelContainer>
-          {regions.adsido.name && (
-            <LabelButton
-              value={regions.adsido.name}
-              onClick={() => handleRemoveAd('adsido')}
-              type="secondary"
-            />
-          )}
-          {regions.adsigg.name && (
-            <LabelButton
-              value={regions.adsigg.name}
-              onClick={() => handleRemoveAd('adsigg')}
-              type="secondary"
-            />
-          )}
-          {regions.ademd.name && (
-            <LabelButton
-              value={regions.ademd.name}
-              onClick={() => handleRemoveAd('ademd')}
-              type="secondary"
-            />
-          )}
-          {regions.adri.name && (
-            <LabelButton
-              value={regions.adri.name}
-              onClick={() => handleRemoveAd('adri')}
-              type="secondary"
-            />
-          )}
-        </S.LabelContainer>
-      </S.InputWrapper>
-
-      {!!regions.adsido.name && !!regions.adsido.name && (
-        <S.PlaceWrapper>
-          <h3>기록할 장소를 선택하세요</h3>
-          <Input
-            type="search"
-            value={searchText}
-            handleChange={handleChangeSearchText}
-            handleSearch={handleSearch}
-            onClick={() => {
-              if (!isShow && searchKeywordData) {
-                setIsShow(true);
-              }
-            }}
-          />
+    <MotionDiv>
+      <S.MainWrapper>
+        <h2>기록할 여행 지역을 선택하세요</h2>
+        <S.InputWrapper>
           <S.LabelContainer>
-            {selectedPlace.map(place => (
+            {regions.adsido.name && (
               <LabelButton
-                key={place.id}
-                value={place.value}
-                onClick={() => handleDeletePlace(place.id)}
+                value={regions.adsido.name}
+                onClick={() => handleRemoveAd('adsido')}
+                type="secondary"
               />
-            ))}
+            )}
+            {regions.adsigg.name && (
+              <LabelButton
+                value={regions.adsigg.name}
+                onClick={() => handleRemoveAd('adsigg')}
+                type="secondary"
+              />
+            )}
+            {regions.ademd.name && (
+              <LabelButton
+                value={regions.ademd.name}
+                onClick={() => handleRemoveAd('ademd')}
+                type="secondary"
+              />
+            )}
+            {regions.adri.name && (
+              <LabelButton
+                value={regions.adri.name}
+                onClick={() => handleRemoveAd('adri')}
+                type="secondary"
+              />
+            )}
           </S.LabelContainer>
-        </S.PlaceWrapper>
-      )}
+        </S.InputWrapper>
 
-      {searchKeywordData?.documents && isShow ? (
-        <Select
-          ref={selectRef}
-          options={searchKeywordData?.documents.map(option => ({
-            id: option.id,
-            value: option.place_name,
-          }))}
-          selected={selectedPlace}
-          onSelect={handleSelectPlace}
-        />
-      ) : (
-        <RegionList data={dropdown} onSelect={handleClickAd} />
-      )}
-    </S.MainWrapper>
+        {!!regions.adsido.name && !!regions.adsido.name && (
+          <S.PlaceWrapper>
+            <h3>기록할 장소를 선택하세요</h3>
+            <Input
+              type="search"
+              value={searchText}
+              handleChange={handleChangeSearchText}
+              handleSearch={handleSearch}
+              onClick={() => {
+                if (!isShow && searchKeywordData) {
+                  setIsShow(true);
+                }
+              }}
+            />
+            <S.LabelContainer>
+              {selectedPlace.map(place => (
+                <LabelButton
+                  key={place.id}
+                  value={place.value}
+                  onClick={() => handleDeletePlace(place.id)}
+                />
+              ))}
+            </S.LabelContainer>
+          </S.PlaceWrapper>
+        )}
+
+        {searchKeywordData?.documents && isShow ? (
+          <Select
+            ref={selectRef}
+            options={searchKeywordData?.documents.map(option => ({
+              id: option.id,
+              value: option.place_name,
+            }))}
+            selected={selectedPlace}
+            onSelect={handleSelectPlace}
+          />
+        ) : (
+          <RegionList data={dropdown} onSelect={handleClickAd} />
+        )}
+      </S.MainWrapper>
+    </MotionDiv>
   );
 }
