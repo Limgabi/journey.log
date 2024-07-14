@@ -7,12 +7,19 @@ interface InputProps {
   value: string | number;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSearch?: () => void;
+  onClick?: () => void;
 }
 
-export default function Input({ type = 'text', value, handleChange, handleSearch }: InputProps) {
+export default function Input({
+  type = 'text',
+  value,
+  handleChange,
+  handleSearch,
+  onClick,
+}: InputProps) {
   return (
     <InputWrapper>
-      <input value={value} onChange={handleChange} />
+      <input value={value} onChange={handleChange} onClick={onClick} />
       {type === 'search' && (
         <button onClick={handleSearch}>
           <Icon icon="Search" width={14} height={14} cursor="pointer" />
