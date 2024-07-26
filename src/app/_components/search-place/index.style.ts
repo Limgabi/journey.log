@@ -33,3 +33,7 @@ export const PlaceWrapper = styled.div`
   gap: 1.2rem;
   align-items: center;
 `;
+
+export const Cascader = styled.div`
+  display: flex;
+`;

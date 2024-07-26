@@ -26,12 +26,25 @@ interface DistrictDropdown {
   };
 }
 
+interface Dropdown {
+  name: string;
+  code: string;
+}
+
 export default function SearchPlace() {
   const selectRef = useRef<HTMLDivElement>(null);
 
   const [searchText, setSearchText] = useState('');
   const [params, setParams] = useState<{ data: string; attrFilter?: string }>();
-  const [dropdown, setDropdown] = useState<{ name: string; code: string }[]>([]);
+
+  /**
+   * 행정구역 cascader 형식으로 보여주기 위한 상태
+   */
+  const [adsido, setAdsido] = useState<Dropdown[]>([]);
+  const [adsigg, setAdsigg] = useState<Dropdown[]>([]);
+  const [ademd, setAdemd] = useState<Dropdown[]>([]);
+  const [adri, setAdri] = useState<Dropdown[]>([]);
+
   const [regions, setRegions] = useState({
     adsido: { name: '', code: '' },
     adsigg: { name: '', code: '' },
@@ -79,29 +92,34 @@ export default function SearchPlace() {
     }
   }, [searchKeywordData]);
 
-  const handleClickAd = (data: { name: string; code: string }) => {
-    if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
-      setRegions(prev => ({ ...prev, adsido: data }));
-    } else if (
-      regions.adsido.code &&
-      !regions.adsigg.code &&
-      !regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      setRegions(prev => ({ ...prev, adsigg: data }));
-    } else if (
-      regions.adsido.code &&
-      regions.adsigg.code &&
-      !regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      setRegions(prev => ({ ...prev, ademd: data }));
-    } else if (
-      regions.adsido.code &&
-      regions.adsigg.code &&
-      regions.ademd.code &&
-      !regions.adri.code
-    ) {
+  const handleClickAd = (data: {
+    name: string;
+    code: string;
+    type: 'adsido' | 'adsigg' | 'ademd' | 'adri';
+  }) => {
+    if (data.type === 'adsido') {
+      setRegions(() => ({
+        adsido: data,
+        adsigg: { name: '', code: '' },
+        ademd: { name: '', code: '' },
+        adri: { name: '', code: '' },
+      }));
+      setAdsigg([]);
+      setAdemd([]);
+      setAdri([]);
+    } else if (data.type === 'adsigg') {
+      setRegions(prev => ({
+        ...prev,
+        adsigg: data,
+        ademd: { name: '', code: '' },
+        adri: { name: '', code: '' },
+      }));
+      setAdemd([]);
+      setAdri([]);
+    } else if (data.type === 'ademd') {
+      setRegions(prev => ({ ...prev, ademd: data, adri: { name: '', code: '' } }));
+      setAdri([]);
+    } else if (data.type === 'adri') {
       setRegions(prev => ({ ...prev, adri: data }));
     }
   };
@@ -114,6 +132,10 @@ export default function SearchPlace() {
         ademd: { name: '', code: '' },
         adri: { name: '', code: '' },
       });
+      setAdsido([]);
+      setAdsigg([]);
+      setAdemd([]);
+      setAdri([]);
     } else if (level === 'adsigg') {
       setRegions(prev => ({
         ...prev,
@@ -121,62 +143,68 @@ export default function SearchPlace() {
         ademd: { name: '', code: '' },
         adri: { name: '', code: '' },
       }));
+      setAdsigg([]);
+      setAdemd([]);
+      setAdri([]);
     } else if (level === 'ademd') {
       setRegions(prev => ({
         ...prev,
         ademd: { name: '', code: '' },
         adri: { name: '', code: '' },
       }));
+      setAdemd([]);
+      setAdri([]);
     } else if (level === 'adri') {
       setRegions(prev => ({ ...prev, adri: { name: '', code: '' } }));
+      setAdri([]);
     }
   };
 
   useEffect(() => {
-    let dropdownData: { name: string; code: string }[] = [];
-
     if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
-      dropdownData =
+      setAdsido(
         data?.map((e: DistrictDropdown) => ({
           name: e.properties.ctp_kor_nm || '',
           code: e.properties.ctprvn_cd || '',
-        })) || [];
+        })) || [],
+      );
     } else if (
       regions.adsido.code &&
       !regions.adsigg.code &&
       !regions.ademd.code &&
       !regions.adri.code
     ) {
-      dropdownData =
+      setAdsigg(
         data?.map((e: DistrictDropdown) => ({
           name: e.properties.sig_kor_nm || '',
           code: e.properties.sig_cd || '',
-        })) || [];
+        })) || [],
+      );
     } else if (
       regions.adsido.code &&
       regions.adsigg.code &&
       !regions.ademd.code &&
       !regions.adri.code
     ) {
-      dropdownData =
+      setAdemd(
         data?.map((e: DistrictDropdown) => ({
           name: e.properties.emd_kor_nm || '',
           code: e.properties.emd_cd || '',
-        })) || [];
+        })) || [],
+      );
     } else if (
       regions.adsido.code &&
       regions.adsigg.code &&
       regions.ademd.code &&
       !regions.adri.code
     ) {
-      dropdownData =
+      setAdri(
         data?.map((e: DistrictDropdown) => ({
           name: e.properties.li_kor_nm || '',
           code: e.properties.li_cd || '',
-        })) || [];
+        })) || [],
+      );
     }
-
-    setDropdown(dropdownData);
   }, [data, regions]);
 
   useEffect(() => {
@@ -339,7 +367,36 @@ export default function SearchPlace() {
             onSelect={handleSelectPlace}
           />
         ) : (
-          <RegionList data={dropdown} onSelect={handleClickAd} />
+          <S.Cascader>
+            {adsido.length > 0 && (
+              <RegionList
+                data={adsido}
+                selected={regions.adsido}
+                onSelect={data => handleClickAd({ ...data, type: 'adsido' })}
+              />
+            )}
+            {adsigg.length > 0 && (
+              <RegionList
+                data={adsigg}
+                selected={regions.adsigg}
+                onSelect={data => handleClickAd({ ...data, type: 'adsigg' })}
+              />
+            )}
+            {ademd.length > 0 && (
+              <RegionList
+                data={ademd}
+                selected={regions.ademd}
+                onSelect={data => handleClickAd({ ...data, type: 'ademd' })}
+              />
+            )}
+            {adri.length > 0 && (
+              <RegionList
+                data={adri}
+                selected={regions.adri}
+                onSelect={data => handleClickAd({ ...data, type: 'adri' })}
+              />
+            )}
+          </S.Cascader>
         )}
       </S.MainWrapper>
     </MotionDiv>
