@@ -1,15 +1,20 @@
-import styled from 'styled-components';
+import styled, { css } from 'styled-components';
 
 interface RegionListProps {
   data: { name: string; code: string }[];
+  selected: { name: string; code: string };
   onSelect: (data: { name: string; code: string }) => void;
 }
 
-export default function RegionList({ data, onSelect }: RegionListProps) {
+export default function RegionList({ data, selected, onSelect }: RegionListProps) {
   return (
     <List>
       {data.map((option, idx) => (
-        <ListContent key={`${idx}-${option.code}`} onClick={() => onSelect(option)}>
+        <ListContent
+          key={`${idx}-${option.code}`}
+          onClick={() => onSelect(option)}
+          selected={option.code === selected.code}
+        >
           {option.name}
         </ListContent>
       ))}
@@ -28,9 +33,11 @@ const List = styled.ul`
     0px 6px 16px 0px rgba(0, 0, 0, 0.08),
     0px 3px 6px -4px rgba(0, 0, 0, 0.12),
     0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+  overflow-y: auto;
 `;
 
-const ListContent = styled.li`
+const ListContent = styled.li<{ selected: boolean }>`
   padding: 0.6rem 1.2rem;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
 
@@ -42,4 +49,11 @@ const ListContent = styled.li`
   &:hover {
     background-color: #0000000f;
   }
+
+  ${({ selected }) =>
+    selected &&
+    css`
+      background-color: #e8f3ff;
+      color: #1b64da;
+    `}
 `;
