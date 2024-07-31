@@ -4,12 +4,11 @@ import { ChangeEvent, useState } from 'react';
 
 import Image from 'next/image';
 
-import { addDoc, collection } from 'firebase/firestore';
 import { ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 import { MotionDiv } from '@/components/Motion';
-import { firestore, storage } from '@/firebase/firebasedb';
+import { storage } from '@/firebase/firebasedb';
 
 import * as S from '../index.style';
 
@@ -30,11 +29,6 @@ export default function Upload() {
       const imageRef = ref(storage, `images/${fileName}`);
 
       await uploadBytes(imageRef, file);
-
-      await addDoc(collection(firestore, `record`), {
-        fileName,
-        uploadDate: new Date(),
-      });
     });
 
     await Promise.all(uploadPromises);
