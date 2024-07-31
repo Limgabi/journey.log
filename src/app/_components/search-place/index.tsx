@@ -2,10 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
 import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
 import Select from '@/components/Select';
+import { URL_PATH } from '@/constants/url-path';
 import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
 
 import LabelButton from './components/LabelButton';
@@ -32,6 +35,7 @@ interface Dropdown {
 }
 
 export default function SearchPlace() {
+  const router = useRouter();
   const selectRef = useRef<HTMLDivElement>(null);
 
   const [searchText, setSearchText] = useState('');
@@ -399,6 +403,16 @@ export default function SearchPlace() {
           </S.Cascader>
         )}
       </S.MainWrapper>
+
+      {selectedPlace.length > 0 && (
+        <button
+          onClick={() =>
+            router.push(`/${URL_PATH.SEARCH_PLACE.HOME}/${URL_PATH.SEARCH_PLACE.UPLOAD}`)
+          }
+        >
+          다음으로
+        </button>
+      )}
     </MotionDiv>
   );
 }

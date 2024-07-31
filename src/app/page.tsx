@@ -6,7 +6,7 @@ export default function Home() {
   return (
     <main>
       journey.log
-      <Link href={`/${URL_PATH.SEARCH_PLACE}`}>
+      <Link href={`/${URL_PATH.SEARCH_PLACE.HOME}`}>
         <button>기록하기</button>
       </Link>
     </main>
