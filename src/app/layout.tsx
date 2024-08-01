@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 
+import BottomNavigation from '@/components/BottomNavigation';
 import Providers from '@/providers';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -22,7 +23,10 @@ export default function RootLayout({
         <meta name="theme-color" content="#ffffff" />
       </head>
       <body className={inter.className}>
-        <Providers>{children}</Providers>
+        <Providers>
+          <main>{children}</main>
+          <BottomNavigation />
+        </Providers>
       </body>
     </html>
   );
