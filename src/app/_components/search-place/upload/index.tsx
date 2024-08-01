@@ -4,36 +4,51 @@ import { ChangeEvent, useState } from 'react';
 
 import Image from 'next/image';
 
-import { ref, uploadBytes } from 'firebase/storage';
+import { addDoc, collection } from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
 import { MotionDiv } from '@/components/Motion';
-import { storage } from '@/firebase/firebasedb';
+import { firestore, storage } from '@/firebase/firebasedb';
+import useRecordInfo from '@/stores/use-record-info';
 
 import * as S from '../index.style';
 
 export default function Upload() {
-  const [images, setImages] = useState<string[]>([]);
+  const { coords, selectedPlace, images, setImages } = useRecordInfo(state => state);
+
+  const [imagePreview, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
 
   const handleImageInfo = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const previews = files.map(file => URL.createObjectURL(file));
-    setImages(previews);
+    setImagePreviews(previews);
     setImageFiles(files);
   };
 
-  const handleUploadImage = async () => {
+  const handleUploadRecord = async () => {
     const uploadPromises = imageFiles.map(async file => {
       const fileName = uuidv4() + '.png';
       const imageRef = ref(storage, `images/${fileName}`);
 
-      await uploadBytes(imageRef, file);
+      const uploadResult = await uploadBytes(imageRef, file);
+      const downloadURL = await getDownloadURL(uploadResult.ref);
+
+      return { fileName, downloadURL };
     });
 
-    await Promise.all(uploadPromises);
+    const uploadedImages = await Promise.all(uploadPromises);
+    setImages(uploadedImages);
+
+    await addDoc(collection(firestore, 'JourneyEntries'), {
+      location: coords,
+      places_visited: selectedPlace,
+      images: uploadedImages,
+    });
+
     alert('이미지 업로드 성공');
-    setImages([]);
+    setImagePreviews([]);
     setImageFiles([]);
   };
 
@@ -44,11 +59,11 @@ export default function Upload() {
         <S.InputWrapper>
           <input type="file" multiple accept="image/*" onChange={handleImageInfo} />
         </S.InputWrapper>
-        {images.map((url, index) => (
+        {imagePreview.map((url, index) => (
           <Image key={index} src={url} alt="img-preview" width={200} height={300} />
         ))}
       </S.MainWrapper>
-      <button onClick={handleUploadImage}>기록하기</button>
+      <button onClick={handleUploadRecord}>기록하기</button>
     </MotionDiv>
   );
 }
