@@ -12,10 +12,10 @@ import { MotionDiv } from '@/components/Motion';
 import { firestore, storage } from '@/firebase/firebasedb';
 import useRecordInfo from '@/stores/use-record-info';
 
-import * as S from '../index.style';
+import * as S from '../search-place/index.style';
 
 export default function Upload() {
-  const { coords, selectedPlace, images, setImages } = useRecordInfo(state => state);
+  const { coords, selectedPlace, setImages } = useRecordInfo(state => state);
 
   const [imagePreview, setImagePreviews] = useState<string[]>([]);
   const [imageFiles, setImageFiles] = useState<File[]>([]);
