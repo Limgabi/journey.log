@@ -2,10 +2,14 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+import { useRouter } from 'next/navigation';
+
 import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
 import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
 import Select from '@/components/Select';
+import { URL_PATH } from '@/constants/url-path';
+import useRecordInfo from '@/stores/use-record-info';
 import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
 
 import LabelButton from './components/LabelButton';
@@ -31,8 +35,16 @@ interface Dropdown {
   code: string;
 }
 
+export interface SelectedPlace {
+  id: string;
+  value: string;
+}
+
 export default function SearchPlace() {
+  const router = useRouter();
   const selectRef = useRef<HTMLDivElement>(null);
+
+  const { coords, setCoords, selectedPlace, setSelectedPlace } = useRecordInfo(state => state);
 
   const [searchText, setSearchText] = useState('');
   const [params, setParams] = useState<{ data: string; attrFilter?: string }>();
@@ -51,10 +63,8 @@ export default function SearchPlace() {
     ademd: { name: '', code: '' },
     adri: { name: '', code: '' },
   });
-  const [selectedPlace, setSelectedPlace] = useState<{ id: string; value: string }[]>([]);
 
   const [isGoogleApiLoaded, setIsGoogleApiLoaded] = useState(false);
-  const [coords, setCoords] = useState({ lat: 0, lng: 0 });
 
   const { data } = useGetDistrictAPI(params);
   const { data: searchKeywordData } = useGetSearchKeywordAPI({
@@ -278,7 +288,7 @@ export default function SearchPlace() {
     );
   };
 
-  const handleSelectPlace = (option: { id: string; value: string }) => {
+  const handleSelectPlace = (option: SelectedPlace) => {
     setSelectedPlace(prev => {
       const isAlreadySelected = prev.some(place => place.id === option.id);
       if (isAlreadySelected) {
@@ -399,6 +409,16 @@ export default function SearchPlace() {
           </S.Cascader>
         )}
       </S.MainWrapper>
+
+      {selectedPlace.length > 0 && (
+        <button
+          onClick={() =>
+            router.push(`/${URL_PATH.SEARCH_PLACE.HOME}/${URL_PATH.SEARCH_PLACE.UPLOAD}`)
+          }
+        >
+          다음으로
+        </button>
+      )}
     </MotionDiv>
   );
 }
