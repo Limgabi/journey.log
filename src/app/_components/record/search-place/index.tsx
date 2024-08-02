@@ -411,11 +411,7 @@ export default function SearchPlace() {
       </S.MainWrapper>
 
       {selectedPlace.length > 0 && (
-        <button
-          onClick={() =>
-            router.push(`/${URL_PATH.SEARCH_PLACE.HOME}/${URL_PATH.SEARCH_PLACE.UPLOAD}`)
-          }
-        >
+        <button onClick={() => router.push(`/${URL_PATH.RECORD.HOME}/${URL_PATH.RECORD.UPLOAD}`)}>
           다음으로
         </button>
       )}
