@@ -1,9 +1,12 @@
 import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
+import { headers } from 'next/headers';
 
 import BottomNavigation from '@/components/BottomNavigation';
 import Header from '@/components/Header';
 import Providers from '@/providers';
+
+type UserAgent = 'desktop' | 'mobile';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -12,11 +15,14 @@ export const metadata: Metadata = {
   description: '',
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const deviceTypeHeader = headers().get('device-type') || '';
+  const userAgent: UserAgent = deviceTypeHeader === 'mobile' ? 'mobile' : 'desktop';
+
   return (
     <html lang="en">
       <head>
@@ -25,9 +31,9 @@ export default function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          <Header />
+          {userAgent === 'desktop' && <Header />}
           <main>{children}</main>
-          <BottomNavigation />
+          {userAgent === 'mobile' && <BottomNavigation />}
         </Providers>
       </body>
     </html>
