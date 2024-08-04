@@ -1,28 +1,39 @@
-import { forwardRef } from 'react';
+import { MutableRefObject, forwardRef } from 'react';
 
 import styled, { css } from 'styled-components';
 
 interface SelectProps {
+  scrollRef?: MutableRefObject<HTMLDivElement | null>;
   options: { id: string; value: string }[];
   selected: { id: string; value: string }[];
   onSelect: (option: { id: string; value: string }) => void;
 }
 
-const Select = forwardRef<HTMLDivElement, SelectProps>(({ options, selected, onSelect }, ref) => {
-  return (
-    <SelectWrapper ref={ref}>
-      {options.map(option => (
-        <SelectOption
-          key={option.id}
-          selected={selected.some(selectedOption => selectedOption.id === option.id)}
-          onClick={() => onSelect(option)}
-        >
-          {option.value}
-        </SelectOption>
-      ))}
-    </SelectWrapper>
-  );
-});
+const Select = forwardRef<HTMLDivElement, SelectProps>(
+  ({ scrollRef, options, selected, onSelect }, ref) => {
+    return (
+      <SelectWrapper ref={ref}>
+        {options.map(option => (
+          <SelectOption
+            key={option.id}
+            selected={selected.some(selectedOption => selectedOption.id === option.id)}
+            onClick={() => onSelect(option)}
+          >
+            {option.value}
+          </SelectOption>
+        ))}
+        {scrollRef && (
+          <div
+            ref={scrollRef}
+            style={{
+              height: '1rem',
+            }}
+          />
+        )}
+      </SelectWrapper>
+    );
+  },
+);
 
 export default Select;
 
@@ -30,6 +41,7 @@ const SelectWrapper = styled.div`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
+  max-height: 40rem;
   padding: 0.4rem;
 
   background-color: #fff;
@@ -38,6 +50,8 @@ const SelectWrapper = styled.div`
     0px 6px 16px 0px rgba(0, 0, 0, 0.08),
     0px 3px 6px -4px rgba(0, 0, 0, 0.12),
     0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+  overflow-y: auto;
 `;
 
 const SelectOption = styled.div<{ selected: boolean }>`

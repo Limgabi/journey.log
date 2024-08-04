@@ -1,19 +1,24 @@
-import { useQuery } from '@tanstack/react-query';
+import { useInfiniteQuery } from '@tanstack/react-query';
 import axios from 'axios';
 
 interface UseGetSearchKeywordAPIParams {
   x: number;
   y: number;
   query: string;
-  page?: number;
 }
 
 interface UseGetSearchKeywordAPIResponse {
   documents: PlaceInfo[];
   meta: {
     is_end: boolean;
+    pageable_count: number;
     total_count: number;
   };
+}
+
+interface UseGetSearchKeywordAPIInfiniteResponse {
+  pageParams: number[];
+  pages: { data: UseGetSearchKeywordAPIResponse }[];
 }
 
 export interface PlaceInfo {
@@ -34,9 +39,17 @@ export interface PlaceInfo {
 export const useGetSearchKeywordAPI = (params: UseGetSearchKeywordAPIParams) => {
   const queryKey = [params];
 
-  const queryFn = async () => {
-    try {
-      const { x, y, query, page } = params;
+  const isEnabled = !!params.x && !!params.y && !!params.query;
+
+  const getNextPageParam = (
+    lastPage: UseGetSearchKeywordAPIResponse,
+    allPages: UseGetSearchKeywordAPIResponse[],
+  ) => (lastPage.meta.is_end ? undefined : allPages.length + 1);
+
+  return useInfiniteQuery({
+    queryKey,
+    queryFn: async ({ pageParam }) => {
+      const { x, y, query } = params;
       const response = await axios.get('https://dapi.kakao.com/v2/local/search/keyword.json', {
         headers: {
           Authorization: `KakaoAK ${process.env.NEXT_PUBLIC_KAKAO_SEARCH_API_KEY}`,
@@ -45,23 +58,16 @@ export const useGetSearchKeywordAPI = (params: UseGetSearchKeywordAPIParams) => 
           query,
           x,
           y,
-          page,
+          page: pageParam,
           size: 15,
           sort: 'distance',
           radius: 1000,
         },
       });
       return response.data;
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const isEnabled = !!params.x && !!params.y && !!params.query;
-
-  return useQuery<UseGetSearchKeywordAPIResponse>({
-    queryKey,
-    queryFn,
+    },
     enabled: isEnabled,
+    getNextPageParam,
+    initialPageParam: 1,
   });
 };

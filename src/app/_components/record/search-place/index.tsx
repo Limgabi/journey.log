@@ -9,6 +9,7 @@ import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
 import Select from '@/components/Select';
 import { URL_PATH } from '@/constants/url-path';
+import { useIntersectionObserver } from '@/hooks';
 import useRecordInfo from '@/stores/use-record-info';
 import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
 
@@ -67,10 +68,19 @@ export default function SearchPlace() {
   const [isGoogleApiLoaded, setIsGoogleApiLoaded] = useState(false);
 
   const { data } = useGetDistrictAPI(params);
-  const { data: searchKeywordData } = useGetSearchKeywordAPI({
+  const {
+    data: searchKeywordData,
+    hasNextPage,
+    fetchNextPage,
+  } = useGetSearchKeywordAPI({
     x: coords.lng,
     y: coords.lat,
     query: searchText,
+  });
+
+  const { observedTargetRef: scrollRef } = useIntersectionObserver({
+    hasNextPage,
+    fetchNextPage,
   });
 
   /**
@@ -97,7 +107,7 @@ export default function SearchPlace() {
   }, [selectRef, isShow]);
 
   useEffect(() => {
-    if (searchKeywordData?.documents && searchKeywordData?.documents.length > 0) {
+    if (searchKeywordData?.pages && searchKeywordData?.pages.length > 0) {
       setIsShow(true);
     }
   }, [searchKeywordData]);
@@ -366,13 +376,16 @@ export default function SearchPlace() {
           </S.PlaceWrapper>
         )}
 
-        {searchKeywordData?.documents && isShow ? (
+        {searchKeywordData?.pages && isShow ? (
           <Select
             ref={selectRef}
-            options={searchKeywordData?.documents.map(option => ({
-              id: option.id,
-              value: option.place_name,
-            }))}
+            scrollRef={hasNextPage ? scrollRef : undefined}
+            options={searchKeywordData?.pages
+              .flatMap(data => data.documents)
+              .map(option => ({
+                id: option.id,
+                value: option.place_name,
+              }))}
             selected={selectedPlace}
             onSelect={handleSelectPlace}
           />
