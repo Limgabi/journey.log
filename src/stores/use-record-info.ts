@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-import { SelectedPlace } from '@/app/_components/record/search-place';
+import { SelectedPlace } from '@/app/_components/record/search-place/hooks/use-select-place';
 
 interface Image {
   downloadURL: string;
