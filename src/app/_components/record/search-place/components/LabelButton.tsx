@@ -1,6 +1,7 @@
 import styled, { css } from 'styled-components';
 
 import Icon from '@/components/Icon';
+import theme from '@/styles/theme';
 
 interface LabelButtonProps {
   type?: 'primary' | 'secondary';
@@ -15,7 +16,9 @@ export default function LabelButton({ value, onClick, type }: LabelButtonProps) 
         icon="Close"
         width={8}
         height={8}
-        color={type === 'secondary' ? '#4e5968' : '#1b64da'}
+        color={
+          type === 'secondary' ? theme.colors.greyScale.coolGray_4 : theme.colors.primary.blue_5
+        }
         cursor="pointer"
       />
       {value}
@@ -31,16 +34,16 @@ const LabelButtonWrapper = styled.button<{ type?: string }>`
 
   border-radius: ${({ theme }) => theme.borderRadius.xs};
   font-size: 1.4rem;
-  background-color: #e8f3ff;
-  color: #1b64da;
+  background-color: ${({ theme }) => theme.colors.primary.blue_0};
+  color: ${({ theme }) => theme.colors.primary.blue_5};
 
   outline: none;
   border: none;
 
-  ${({ type }) =>
+  ${({ type, theme }) =>
     type === 'secondary' &&
     css`
-      background-color: #f2f4f6;
-      color: #4e5968;
+      background-color: ${theme.colors.greyScale.grayScale_1};
+      color: ${theme.colors.greyScale.coolGray_4};
     `}
 `;

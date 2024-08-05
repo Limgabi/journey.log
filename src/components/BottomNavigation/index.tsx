@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import styled, { css } from 'styled-components';
 
 import { URL_PATH } from '@/constants/url-path';
+import theme from '@/styles/theme';
 
 import Icon from '../Icon';
 
@@ -32,7 +33,11 @@ export default function BottomNavigation() {
           onClick={() => route.push(menu.value)}
           current={pathname === menu.value}
         >
-          <Icon icon={menu.icon} color={pathname === menu.value ? '#87CEEB' : ''} />
+          <Icon
+            icon={menu.icon}
+            color={pathname === menu.value ? theme.colors.greyScale.coolGray_6 : ''}
+            cursor="pointer"
+          />
           {menu.label}
         </MENU>
       ))}
@@ -50,7 +55,7 @@ const NavBar = styled.div`
   justify-content: space-around;
   padding: 1rem 1.8rem;
 
-  background-color: #ffffff;
+  background-color: ${({ theme }) => theme.colors.greyScale.grayScale_0};
   box-shadow: 0px -1px 8px 0px rgba(0, 0, 0, 0.1);
 `;
 
@@ -60,9 +65,13 @@ const MENU = styled.div<{ current: boolean }>`
   gap: 0.8rem;
   align-items: center;
 
-  ${({ current }) =>
+  color: ${({ theme }) => theme.colors.greyScale.coolGray_2};
+
+  cursor: pointer;
+
+  ${({ current, theme }) =>
     current &&
     css`
-      color: #6e98a8;
+      color: ${theme.colors.greyScale.coolGray_6};
     `}
 `;

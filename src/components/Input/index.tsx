@@ -33,7 +33,7 @@ const InputWrapper = styled.div`
   display: flex;
   align-items: center;
 
-  border: 0.1rem solid #d9d9d9;
+  border: 0.1rem solid ${({ theme }) => theme.colors.greyScale.grayScale_2};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
 
   input {
