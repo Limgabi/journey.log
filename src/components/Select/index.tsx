@@ -44,7 +44,7 @@ const SelectWrapper = styled.div`
   max-height: 40rem;
   padding: 0.4rem;
 
-  background-color: #fff;
+  background-color: ${({ theme }) => theme.colors.greyScale.grayScale_0};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   box-shadow:
     0px 6px 16px 0px rgba(0, 0, 0, 0.08),
@@ -58,7 +58,7 @@ const SelectOption = styled.div<{ selected: boolean }>`
   padding: 0.6rem 1.2rem;
   border-radius: ${({ theme }) => theme.borderRadius.sm};
 
-  color: #161616;
+  color: ${({ theme }) => theme.colors.greyScale.warmGray_6};
   font-size: 1.4rem;
 
   cursor: pointer;
@@ -67,10 +67,10 @@ const SelectOption = styled.div<{ selected: boolean }>`
     background-color: #0000000f;
   }
 
-  ${({ selected }) =>
+  ${({ selected, theme }) =>
     selected &&
     css`
-      background-color: #e8f3ff;
-      color: #1b64da;
+      background-color: ${theme.colors.greyScale.grayScale_1};
+      color: ${theme.colors.primary.blue_5};
     `}
 `;
