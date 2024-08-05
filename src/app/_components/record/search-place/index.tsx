@@ -4,70 +4,48 @@ import { useState, useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { useGetSearchKeywordAPI, useGetDistrictAPI } from '@/app/_api/search';
+import { useGetSearchKeywordAPI } from '@/app/_api/search';
 import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
 import Select from '@/components/Select';
 import { URL_PATH } from '@/constants/url-path';
 import { useIntersectionObserver } from '@/hooks';
 import useRecordInfo from '@/stores/use-record-info';
-import { loadGoogleMapsScript } from '@/utils/googleMapsLoader';
 
 import LabelButton from './components/LabelButton';
 import RegionList from './components/RegionList';
+import useManageGeocoder from './hooks/use-manage-geocoder';
+import useManageRegions from './hooks/use-manage-regions';
+import useSelectAddress from './hooks/use-select-address';
+import useSelectPlace from './hooks/use-select-place';
 import * as S from './index.style';
 
-interface DistrictDropdown {
-  properties: {
-    ctp_kor_nm?: string;
-    sig_kor_nm?: string;
-    emd_kor_nm?: string;
-    li_kor_nm?: string;
-
-    ctprvn_cd?: string;
-    sig_cd?: string;
-    emd_cd?: string;
-    li_cd?: string;
-  };
-}
-
-interface Dropdown {
+export interface AdDropdown {
   name: string;
   code: string;
 }
 
-export interface SelectedPlace {
-  id: string;
-  value: string;
+export interface Regions {
+  adsido: AdDropdown;
+  adsigg: AdDropdown;
+  ademd: AdDropdown;
+  adri: AdDropdown;
 }
 
 export default function SearchPlace() {
   const router = useRouter();
   const selectRef = useRef<HTMLDivElement>(null);
 
-  const { coords, setCoords, selectedPlace, setSelectedPlace } = useRecordInfo(state => state);
+  const { coords, selectedPlace } = useRecordInfo(state => state);
 
   const [searchText, setSearchText] = useState('');
-  const [params, setParams] = useState<{ data: string; attrFilter?: string }>();
-
-  /**
-   * 행정구역 cascader 형식으로 보여주기 위한 상태
-   */
-  const [adsido, setAdsido] = useState<Dropdown[]>([]);
-  const [adsigg, setAdsigg] = useState<Dropdown[]>([]);
-  const [ademd, setAdemd] = useState<Dropdown[]>([]);
-  const [adri, setAdri] = useState<Dropdown[]>([]);
-
-  const [regions, setRegions] = useState({
+  const [regions, setRegions] = useState<Regions>({
     adsido: { name: '', code: '' },
     adsigg: { name: '', code: '' },
     ademd: { name: '', code: '' },
     adri: { name: '', code: '' },
   });
 
-  const [isGoogleApiLoaded, setIsGoogleApiLoaded] = useState(false);
-
-  const { data } = useGetDistrictAPI(params);
   const {
     data: searchKeywordData,
     hasNextPage,
@@ -77,6 +55,22 @@ export default function SearchPlace() {
     y: coords.lat,
     query: searchText,
   });
+
+  const { adsido, setAdsido, adsigg, setAdsigg, ademd, setAdemd, adri, setAdri } = useManageRegions(
+    { regions, setRegions },
+  );
+
+  const { handleClickAd, handleRemoveAd } = useSelectAddress({
+    setRegions,
+    setAdsido,
+    setAdsigg,
+    setAdemd,
+    setAdri,
+  });
+
+  const { handleSelectPlace, handleDeletePlace } = useSelectPlace();
+
+  const { geocode } = useManageGeocoder();
 
   const { observedTargetRef: scrollRef } = useIntersectionObserver({
     hasNextPage,
@@ -112,182 +106,6 @@ export default function SearchPlace() {
     }
   }, [searchKeywordData]);
 
-  const handleClickAd = (data: {
-    name: string;
-    code: string;
-    type: 'adsido' | 'adsigg' | 'ademd' | 'adri';
-  }) => {
-    if (data.type === 'adsido') {
-      setRegions(() => ({
-        adsido: data,
-        adsigg: { name: '', code: '' },
-        ademd: { name: '', code: '' },
-        adri: { name: '', code: '' },
-      }));
-      setAdsigg([]);
-      setAdemd([]);
-      setAdri([]);
-    } else if (data.type === 'adsigg') {
-      setRegions(prev => ({
-        ...prev,
-        adsigg: data,
-        ademd: { name: '', code: '' },
-        adri: { name: '', code: '' },
-      }));
-      setAdemd([]);
-      setAdri([]);
-    } else if (data.type === 'ademd') {
-      setRegions(prev => ({ ...prev, ademd: data, adri: { name: '', code: '' } }));
-      setAdri([]);
-    } else if (data.type === 'adri') {
-      setRegions(prev => ({ ...prev, adri: data }));
-    }
-  };
-
-  const handleRemoveAd = (level: string) => {
-    if (level === 'adsido') {
-      setRegions({
-        adsido: { name: '', code: '' },
-        adsigg: { name: '', code: '' },
-        ademd: { name: '', code: '' },
-        adri: { name: '', code: '' },
-      });
-      setAdsido([]);
-      setAdsigg([]);
-      setAdemd([]);
-      setAdri([]);
-    } else if (level === 'adsigg') {
-      setRegions(prev => ({
-        ...prev,
-        adsigg: { name: '', code: '' },
-        ademd: { name: '', code: '' },
-        adri: { name: '', code: '' },
-      }));
-      setAdsigg([]);
-      setAdemd([]);
-      setAdri([]);
-    } else if (level === 'ademd') {
-      setRegions(prev => ({
-        ...prev,
-        ademd: { name: '', code: '' },
-        adri: { name: '', code: '' },
-      }));
-      setAdemd([]);
-      setAdri([]);
-    } else if (level === 'adri') {
-      setRegions(prev => ({ ...prev, adri: { name: '', code: '' } }));
-      setAdri([]);
-    }
-  };
-
-  useEffect(() => {
-    if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
-      setAdsido(
-        data?.map((e: DistrictDropdown) => ({
-          name: e.properties.ctp_kor_nm || '',
-          code: e.properties.ctprvn_cd || '',
-        })) || [],
-      );
-    } else if (
-      regions.adsido.code &&
-      !regions.adsigg.code &&
-      !regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      setAdsigg(
-        data?.map((e: DistrictDropdown) => ({
-          name: e.properties.sig_kor_nm || '',
-          code: e.properties.sig_cd || '',
-        })) || [],
-      );
-    } else if (
-      regions.adsido.code &&
-      regions.adsigg.code &&
-      !regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      setAdemd(
-        data?.map((e: DistrictDropdown) => ({
-          name: e.properties.emd_kor_nm || '',
-          code: e.properties.emd_cd || '',
-        })) || [],
-      );
-    } else if (
-      regions.adsido.code &&
-      regions.adsigg.code &&
-      regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      setAdri(
-        data?.map((e: DistrictDropdown) => ({
-          name: e.properties.li_kor_nm || '',
-          code: e.properties.li_cd || '',
-        })) || [],
-      );
-    }
-  }, [data, regions]);
-
-  useEffect(() => {
-    let dataParam: string = '';
-    let attrFilterParam: string | undefined = undefined;
-
-    if (!regions.adsido.code && !regions.adsigg.code && !regions.ademd.code && !regions.adri.code) {
-      dataParam = 'LT_C_ADSIDO_INFO';
-    } else if (
-      regions.adsido.code &&
-      !regions.adsigg.code &&
-      !regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      dataParam = 'LT_C_ADSIGG_INFO';
-      attrFilterParam = `sig_cd:like:${regions.adsido.code}`;
-    } else if (
-      regions.adsido.code &&
-      regions.adsigg.code &&
-      !regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      dataParam = 'LT_C_ADEMD_INFO';
-      attrFilterParam = `emd_cd:like:${regions.adsigg.code}`;
-    } else if (
-      regions.adsido.code &&
-      regions.adsigg.code &&
-      regions.ademd.code &&
-      !regions.adri.code
-    ) {
-      dataParam = 'LT_C_ADRI_INFO';
-      attrFilterParam = `li_cd:like:${regions.ademd.code}`;
-    }
-
-    setParams({ data: dataParam, attrFilter: attrFilterParam });
-  }, [regions]);
-
-  useEffect(() => {
-    loadGoogleMapsScript(() => {
-      setIsGoogleApiLoaded(true);
-    });
-  }, []);
-
-  const geocode = (address: string) => {
-    if (!isGoogleApiLoaded) {
-      return;
-    }
-
-    const geocoder = new window.google.maps.Geocoder();
-
-    geocoder.geocode({ address }, (results: any, status: string) => {
-      if (status === 'OK') {
-        const location = results[0].geometry.location;
-        setCoords({
-          lat: location.lat(),
-          lng: location.lng(),
-        });
-      } else {
-        console.error(status);
-      }
-    });
-  };
-
   const handleChangeSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
   };
@@ -296,21 +114,6 @@ export default function SearchPlace() {
     await geocode(
       `${regions.adsido.name} ${regions.adsigg.name} ${regions.ademd.name} ${regions.adri.name}`,
     );
-  };
-
-  const handleSelectPlace = (option: SelectedPlace) => {
-    setSelectedPlace(prev => {
-      const isAlreadySelected = prev.some(place => place.id === option.id);
-      if (isAlreadySelected) {
-        return prev.filter(place => place.id !== option.id);
-      } else {
-        return [...prev, option];
-      }
-    });
-  };
-
-  const handleDeletePlace = (id: string) => {
-    setSelectedPlace(prev => prev.filter(place => place.id !== id));
   };
 
   return (
