@@ -32,7 +32,14 @@ export default async function RootLayout({
       <body className={inter.className}>
         <Providers>
           {userAgent === 'desktop' && <Header />}
-          <main>{children}</main>
+          <main
+            style={{
+              marginTop: userAgent === 'desktop' ? '4.8rem' : '',
+              marginBottom: userAgent === 'mobile' ? '7.6rem' : '',
+            }}
+          >
+            {children}
+          </main>
           {userAgent === 'mobile' && <BottomNavigation />}
         </Providers>
       </body>

@@ -2,12 +2,12 @@ import { create } from 'zustand';
 
 import { SelectedPlace } from '@/app/_components/record/search-place/hooks/use-select-place';
 
-interface Image {
+export interface Image {
   downloadURL: string;
   fileName: string;
 }
 
-interface RecordInfoState {
+export interface RecordInfoState {
   coords: { lat: number; lng: number };
   selectedPlace: SelectedPlace[];
   images: Image[];
