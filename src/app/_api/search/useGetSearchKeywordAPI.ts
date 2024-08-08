@@ -37,7 +37,7 @@ export interface PlaceInfo {
 }
 
 export const useGetSearchKeywordAPI = (params: UseGetSearchKeywordAPIParams) => {
-  const queryKey = [params];
+  const queryKey = ['searchKeyword', params.x, params.y, params.query];
 
   const isEnabled = !!params.x && !!params.y && !!params.query;
 

@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 
+import { debounce } from 'lodash';
+
 import { useGetSearchKeywordAPI } from '@/app/_api/search';
 import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
@@ -39,6 +41,8 @@ export default function SearchPlace() {
   const { coords, selectedPlace } = useRecordInfo(state => state);
 
   const [searchText, setSearchText] = useState('');
+  const [debouncedText, setDebouncedText] = useState('');
+
   const [regions, setRegions] = useState<Regions>({
     adsido: { name: '', code: '' },
     adsigg: { name: '', code: '' },
@@ -53,7 +57,7 @@ export default function SearchPlace() {
   } = useGetSearchKeywordAPI({
     x: coords.lng,
     y: coords.lat,
-    query: searchText,
+    query: debouncedText,
   });
 
   const { adsido, setAdsido, adsigg, setAdsigg, ademd, setAdemd, adri, setAdri } = useManageRegions(
@@ -106,8 +110,13 @@ export default function SearchPlace() {
     }
   }, [searchKeywordData]);
 
+  const debouncedSearchText = debounce((value: string) => {
+    setDebouncedText(value);
+  }, 300);
+
   const handleChangeSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
+    debouncedSearchText(e.target.value);
   };
 
   const handleSearch = async () => {
