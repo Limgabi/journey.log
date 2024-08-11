@@ -2,12 +2,11 @@
 
 import { ChangeEvent, useState } from 'react';
 
-import Image from 'next/image';
-
 import { addDoc, collection } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { v4 as uuidv4 } from 'uuid';
 
+import Image from '@/components/Image';
 import { MotionDiv } from '@/components/Motion';
 import { firestore, storage } from '@/firebase/firebasedb';
 import useRecordInfo from '@/stores/use-record-info';

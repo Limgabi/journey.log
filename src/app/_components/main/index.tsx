@@ -2,12 +2,11 @@
 
 import { useEffect, useState } from 'react';
 
-import Image from 'next/image';
-
 import axios from 'axios';
 import { collection, getDocs } from 'firebase/firestore';
 import styled from 'styled-components';
 
+import Image from '@/components/Image';
 import { firestore } from '@/firebase/firebasedb';
 import { Image as ImageType } from '@/stores/use-record-info';
 
