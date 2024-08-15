@@ -18,6 +18,7 @@ interface RecordDetail {
   location: { lng: number; lat: number };
   address: string;
   places_visited: SelectedPlace[];
+  content: string;
 }
 
 export default function Main() {
@@ -102,6 +103,7 @@ export default function Main() {
               />
             ))}
           </ImageContainer>
+          {record.content && <Content>{record.content}</Content>}
         </RecordWrapper>
       ))}
     </MainWrapper>
@@ -155,3 +157,5 @@ const ImageContainer = styled.div`
 const Images = styled(Image)`
   border-radius: ${({ theme }) => theme.borderRadius.lg};
 `;
+
+const Content = styled.div``;
