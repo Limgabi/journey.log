@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { debounce } from 'lodash';
 
 import { useGetSearchKeywordAPI } from '@/app/_api/search';
+import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
 import Select from '@/components/Select';
@@ -236,9 +237,9 @@ export default function SearchPlace() {
       </S.MainWrapper>
 
       {selectedPlace.length > 0 && (
-        <button onClick={() => router.push(`/${URL_PATH.RECORD.HOME}/${URL_PATH.RECORD.UPLOAD}`)}>
+        <Button onClick={() => router.push(`/${URL_PATH.RECORD.HOME}/${URL_PATH.RECORD.UPLOAD}`)}>
           다음으로
-        </button>
+        </Button>
       )}
     </MotionDiv>
   );
