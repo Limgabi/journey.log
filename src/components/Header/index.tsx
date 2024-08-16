@@ -21,7 +21,7 @@ export default function Header() {
   return (
     <HeaderWrapper>
       <Logo onClick={() => router.push(`${URL_PATH.HOME}`)}>j.log</Logo>
-      <Popover content={<MenuContent />}>
+      <Popover content={<MenuContent />} placement="bottomRight">
         <Icon icon="Profile" cursor="pointer" />
       </Popover>
     </HeaderWrapper>
