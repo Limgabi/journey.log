@@ -3,11 +3,12 @@ import styled from 'styled-components';
 import Icon from '../Icon';
 
 interface InputProps {
-  type?: 'search' | 'text';
+  type?: 'search' | 'text' | 'password';
   value: string | number;
   handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSearch?: () => void;
   onClick?: () => void;
+  placeholder?: string;
 }
 
 export default function Input({
@@ -16,10 +17,17 @@ export default function Input({
   handleChange,
   handleSearch,
   onClick,
+  placeholder,
 }: InputProps) {
   return (
     <InputWrapper>
-      <input value={value} onChange={handleChange} onClick={onClick} />
+      <input
+        value={value}
+        onChange={handleChange}
+        onClick={onClick}
+        placeholder={placeholder}
+        type={type}
+      />
       {type === 'search' && (
         <button onClick={handleSearch}>
           <Icon icon="Search" width={14} height={14} cursor="pointer" />
@@ -32,6 +40,8 @@ export default function Input({
 const InputWrapper = styled.div`
   display: flex;
   align-items: center;
+
+  width: 100%;
 
   border: 0.1rem solid ${({ theme }) => theme.colors.greyScale.grayScale_2};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
