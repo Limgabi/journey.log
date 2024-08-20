@@ -4,7 +4,6 @@ import { useState } from 'react';
 
 import styled from 'styled-components';
 
-import BackHeader from '@/components/BackHeader';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 
@@ -14,7 +13,6 @@ export default function SignIn() {
 
   return (
     <Wrapper>
-      <BackHeader />
       <LogoWrapper>
         <Logo>j.log</Logo>
         <SubText>나만의 여행을 기록하고 공유하세요.</SubText>
