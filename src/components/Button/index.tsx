@@ -2,6 +2,8 @@ import { ReactNode } from 'react';
 
 import styled, { css } from 'styled-components';
 
+// TODO: 타입별 색상 (primary, secondary, ... ) 및 사이즈 정의
+
 interface ButtonProps {
   children: ReactNode;
   onClick: VoidFunction;
@@ -25,6 +27,8 @@ const ButtonWrapper = styled.button<{ disbled?: boolean }>`
   border-radius: ${({ theme }) => theme.borderRadius.sm};
   background-color: ${({ theme }) => theme.colors.primary.blue_3};
   color: ${({ theme }) => theme.colors.greyScale.grayScale_0};
+
+  white-space: nowrap;
 
   ${({ disabled, theme }) =>
     disabled &&
