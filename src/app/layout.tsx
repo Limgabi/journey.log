@@ -3,7 +3,7 @@ import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 
 import BottomNavigation from '@/components/BottomNavigation';
-import Header from '@/components/Header';
+import { MobileHeader, PCHeader } from '@/components/Header';
 import Providers from '@/providers';
 
 type UserAgent = 'desktop' | 'mobile';
@@ -31,10 +31,10 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          {userAgent === 'desktop' && <Header />}
+          {userAgent === 'desktop' ? <PCHeader /> : <MobileHeader />}
           <main
             style={{
-              marginTop: userAgent === 'desktop' ? '4.8rem' : '',
+              marginTop: '4.8rem',
               marginBottom: userAgent === 'mobile' ? '7.6rem' : '',
             }}
           >
