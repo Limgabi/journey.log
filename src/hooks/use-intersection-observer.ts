@@ -7,9 +7,10 @@ interface IntersectionObserverInit {
   rootMargin?: string;
   threshold?: number | number[];
 }
+
 interface UseIntersectionObserverProps<T> extends IntersectionObserverInit {
   onChange?: (entry: IntersectionObserverEntry) => void;
-  hasNextPage?: boolean | undefined;
+  hasNextPage?: boolean;
   fetchNextPage?: (
     options?: FetchNextPageOptions | undefined,
   ) => Promise<InfiniteQueryObserverResult<T, unknown>>;
@@ -20,36 +21,51 @@ export function useIntersectionObserver<T>({
   onChange,
   hasNextPage,
   fetchNextPage,
+  root = null,
+  rootMargin = '0px',
 }: UseIntersectionObserverProps<T>) {
   const observedTargetRef = useRef<HTMLDivElement | null>(null);
 
-  const defaultCallback = () => hasNextPage && fetchNextPage && fetchNextPage();
+  const defaultCallback = useCallback(() => {
+    if (hasNextPage && fetchNextPage) {
+      fetchNextPage();
+    }
+  }, [hasNextPage, fetchNextPage]);
 
-  const observerCallback: IntersectionObserverCallback = useCallback(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        onChange ? onChange(entry) : defaultCallback();
-      }
-    });
-  }, []);
+  const observerCallback = useCallback(
+    (entries: IntersectionObserverEntry[]) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          onChange ? onChange(entry) : defaultCallback();
+        }
+      });
+    },
+    [onChange, defaultCallback],
+  );
 
   useEffect(() => {
-    if (!observedTargetRef.current) return;
-
     if (!('IntersectionObserver' in window)) return;
 
-    const observer = new IntersectionObserver(observerCallback, {
+    const options: IntersectionObserverInit = {
+      root,
+      rootMargin,
       threshold,
-    });
+    };
 
-    observer.observe(observedTargetRef.current as HTMLDivElement);
+    const observer = new IntersectionObserver(observerCallback, options);
+
+    const targetElement = observedTargetRef.current;
+
+    if (targetElement) {
+      observer.observe(targetElement);
+    }
 
     return () => {
-      if (observedTargetRef.current) {
-        observer.unobserve(observedTargetRef.current as HTMLDivElement);
+      if (targetElement) {
+        observer.unobserve(targetElement);
       }
     };
-  }, [observerCallback, threshold, observedTargetRef]);
+  }, [observerCallback, root, rootMargin, threshold, observedTargetRef]);
 
   return { observedTargetRef };
 }
