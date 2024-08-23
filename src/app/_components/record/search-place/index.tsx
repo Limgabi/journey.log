@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { debounce } from 'lodash';
+import { debounce, isEqual } from 'lodash';
 
 import { useGetSearchKeywordAPI } from '@/app/_api/search';
 import Button from '@/components/Button';
@@ -38,6 +38,7 @@ export interface Regions {
 export default function SearchPlace() {
   const router = useRouter();
   const selectRef = useRef<HTMLDivElement>(null);
+  const prevRegionsRef = useRef<Regions | null>();
 
   const { coords, selectedPlace } = useRecordInfo(state => state);
 
@@ -111,6 +112,19 @@ export default function SearchPlace() {
     }
   }, [searchKeywordData]);
 
+  useEffect(() => {
+    if (!isEqual(prevRegionsRef.current, regions)) {
+      const setGeocode = async () => {
+        await geocode(
+          `${regions.adsido.name} ${regions.adsigg.name} ${regions.ademd.name} ${regions.adri.name}`,
+        );
+      };
+
+      setGeocode();
+      prevRegionsRef.current = regions;
+    }
+  }, [regions]);
+
   const debouncedSearchText = debounce((value: string) => {
     setDebouncedText(value);
   }, 300);
@@ -118,12 +132,6 @@ export default function SearchPlace() {
   const handleChangeSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
     debouncedSearchText(e.target.value);
-  };
-
-  const handleSearch = async () => {
-    await geocode(
-      `${regions.adsido.name} ${regions.adsigg.name} ${regions.ademd.name} ${regions.adri.name}`,
-    );
   };
 
   return (
@@ -163,14 +171,13 @@ export default function SearchPlace() {
           </S.LabelContainer>
         </S.InputWrapper>
 
-        {!!regions.adsido.name && !!regions.adsido.name && (
+        {!!regions.adsido.name && (
           <S.PlaceWrapper>
             <h3>기록할 장소를 선택하세요</h3>
             <Input
               type="search"
               value={searchText}
               handleChange={handleChangeSearchText}
-              handleSearch={handleSearch}
               onClick={() => {
                 if (!isShow && searchKeywordData) {
                   setIsShow(true);
