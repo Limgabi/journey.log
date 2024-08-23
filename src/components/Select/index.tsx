@@ -3,7 +3,7 @@ import { MutableRefObject, forwardRef } from 'react';
 import styled, { css } from 'styled-components';
 
 interface SelectProps {
-  scrollRef?: MutableRefObject<HTMLDivElement | null>;
+  scrollRef?: MutableRefObject<HTMLDivElement | null> | null;
   options: { id: string; value: string }[];
   selected: { id: string; value: string }[];
   onSelect: (option: { id: string; value: string }) => void;
@@ -22,14 +22,7 @@ const Select = forwardRef<HTMLDivElement, SelectProps>(
             {option.value}
           </SelectOption>
         ))}
-        {scrollRef && (
-          <div
-            ref={scrollRef}
-            style={{
-              height: '1rem',
-            }}
-          />
-        )}
+        {scrollRef && <ScrollTrigger ref={scrollRef} />}
       </SelectWrapper>
     );
   },
@@ -73,4 +66,9 @@ const SelectOption = styled.div<{ selected: boolean }>`
       background-color: ${theme.colors.greyScale.grayScale_1};
       color: ${theme.colors.primary.blue_5};
     `}
+`;
+
+const ScrollTrigger = styled.div`
+  height: 1px !important;
+  width: 100%;
 `;

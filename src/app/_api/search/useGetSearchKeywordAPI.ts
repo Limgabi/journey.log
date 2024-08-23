@@ -61,7 +61,6 @@ export const useGetSearchKeywordAPI = (params: UseGetSearchKeywordAPIParams) => 
           page: pageParam,
           size: 15,
           sort: 'distance',
-          radius: 1000,
         },
       });
       return response.data;

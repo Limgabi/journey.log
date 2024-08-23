@@ -199,7 +199,7 @@ export default function SearchPlace() {
         {searchKeywordData?.pages && isShow ? (
           <Select
             ref={selectRef}
-            scrollRef={hasNextPage ? scrollRef : undefined}
+            scrollRef={hasNextPage ? scrollRef : null}
             options={searchKeywordData?.pages
               .flatMap(data => data.documents)
               .map(option => ({
