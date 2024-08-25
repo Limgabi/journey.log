@@ -2,11 +2,11 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { headers } from 'next/headers';
 
-import BottomNavigation from '@/components/BottomNavigation';
-import { MobileHeader, PCHeader } from '@/components/Header';
 import Providers from '@/providers';
 
-type UserAgent = 'desktop' | 'mobile';
+import ResponsiveLayout from './ResponsiveLayout';
+
+export type UserAgent = 'desktop' | 'mobile';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -22,7 +22,7 @@ export default async function RootLayout({
 }>) {
   const deviceTypeHeader = headers().get('device-type') || '';
   const userAgent: UserAgent = deviceTypeHeader === 'mobile' ? 'mobile' : 'desktop';
-
+  console.log('초기 userAgent', userAgent);
   return (
     <html lang="en">
       <head>
@@ -31,16 +31,7 @@ export default async function RootLayout({
       </head>
       <body className={inter.className}>
         <Providers>
-          {userAgent === 'desktop' ? <PCHeader /> : <MobileHeader />}
-          <main
-            style={{
-              marginTop: '4.8rem',
-              marginBottom: userAgent === 'mobile' ? '7.6rem' : '',
-            }}
-          >
-            {children}
-          </main>
-          {userAgent === 'mobile' && <BottomNavigation />}
+          <ResponsiveLayout initialUserAgent={userAgent}>{children}</ResponsiveLayout>
         </Providers>
       </body>
     </html>
