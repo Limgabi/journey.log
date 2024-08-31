@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { useRouter } from 'next/navigation';
 
@@ -16,41 +16,22 @@ import { useIntersectionObserver } from '@/hooks';
 import useRecordInfo from '@/stores/use-record-info';
 
 import LabelButton from './components/LabelButton';
-import RegionList from './components/RegionList';
+import useGetRegions, { Region } from './hooks/use-get-regions';
 import useManageGeocoder from './hooks/use-manage-geocoder';
-import useManageRegions from './hooks/use-manage-regions';
-import useSelectAddress from './hooks/use-select-address';
 import useSelectPlace from './hooks/use-select-place';
 import * as S from './index.style';
-
-export interface AdDropdown {
-  name: string;
-  code: string;
-}
-
-export interface Regions {
-  adsido: AdDropdown;
-  adsigg: AdDropdown;
-  ademd: AdDropdown;
-  adri: AdDropdown;
-}
 
 export default function SearchPlace() {
   const router = useRouter();
   const selectRef = useRef<HTMLDivElement>(null);
-  const prevRegionsRef = useRef<Regions | null>();
+  const prevRegionsRef = useRef<Region | null>(null);
 
   const { coords, selectedPlace } = useRecordInfo(state => state);
 
   const [searchText, setSearchText] = useState('');
   const [debouncedText, setDebouncedText] = useState('');
-
-  const [regions, setRegions] = useState<Regions>({
-    adsido: { name: '', code: '' },
-    adsigg: { name: '', code: '' },
-    ademd: { name: '', code: '' },
-    adri: { name: '', code: '' },
-  });
+  const [region, setRegion] = useState<Region>({ emd: '', sigg: '', sido: '' });
+  const [isShow, setIsShow] = useState(false);
 
   const {
     data: searchKeywordData,
@@ -62,32 +43,12 @@ export default function SearchPlace() {
     query: debouncedText,
   });
 
-  const { adsido, setAdsido, adsigg, setAdsigg, ademd, setAdemd, adri, setAdri } = useManageRegions(
-    { regions, setRegions },
-  );
-
-  const { handleClickAd, handleRemoveAd } = useSelectAddress({
-    setRegions,
-    setAdsido,
-    setAdsigg,
-    setAdemd,
-    setAdri,
-  });
-
+  const { sidoList, siggList, emdList } = useGetRegions(region);
   const { handleSelectPlace, handleDeletePlace } = useSelectPlace();
-
   const { geocode } = useManageGeocoder();
+  const { observedTargetRef: scrollRef } = useIntersectionObserver({ hasNextPage, fetchNextPage });
 
-  const { observedTargetRef: scrollRef } = useIntersectionObserver({
-    hasNextPage,
-    fetchNextPage,
-  });
-
-  /**
-   * select 외부 클릭 감지
-   */
-  const [isShow, setIsShow] = useState(false);
-
+  // 외부 클릭 감지
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (selectRef.current && !selectRef.current.contains(event.target as Node)) {
@@ -95,44 +56,52 @@ export default function SearchPlace() {
       }
     };
 
-    if (isShow) {
-      document.addEventListener('mousedown', handleClickOutside);
-    } else {
-      document.removeEventListener('mousedown', handleClickOutside);
-    }
-
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [selectRef, isShow]);
+    if (isShow) document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isShow]);
 
   useEffect(() => {
-    if (searchKeywordData?.pages && searchKeywordData?.pages.length > 0) {
+    if (searchKeywordData?.pages && searchKeywordData.pages.length > 0) {
       setIsShow(true);
     }
   }, [searchKeywordData]);
 
   useEffect(() => {
-    if (!isEqual(prevRegionsRef.current, regions)) {
+    if (!isEqual(prevRegionsRef.current, region)) {
       const setGeocode = async () => {
-        await geocode(
-          `${regions.adsido.name} ${regions.adsigg.name} ${regions.ademd.name} ${regions.adri.name}`,
-        );
+        await geocode(`${region.sido} ${region.sigg} ${region.emd}`);
       };
-
       setGeocode();
-      prevRegionsRef.current = regions;
+      prevRegionsRef.current = region;
     }
-  }, [regions]);
+  }, [region, geocode]);
 
-  const debouncedSearchText = debounce((value: string) => {
-    setDebouncedText(value);
-  }, 300);
+  const debouncedSearchText = useCallback(
+    debounce((value: string) => setDebouncedText(value), 300),
+    [],
+  );
 
   const handleChangeSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
     setSearchText(e.target.value);
     debouncedSearchText(e.target.value);
   };
+
+  const handleSelectRegion = useCallback((key: keyof Region, value: string) => {
+    setRegion(prevState => ({
+      ...prevState,
+      [key]: value,
+      ...(key !== 'emd' && { emd: '' }),
+      ...(key === 'sido' && { sigg: '', emd: '' }),
+    }));
+  }, []);
+
+  const renderSelect = (options: string[], key: keyof Region, selectedValue: string) => (
+    <Select
+      options={options.map(value => ({ id: value, value }))}
+      selected={[{ id: selectedValue, value: selectedValue }]}
+      onSelect={option => handleSelectRegion(key, option.value)}
+    />
+  );
 
   return (
     <MotionDiv>
@@ -140,38 +109,31 @@ export default function SearchPlace() {
         <h2>기록할 여행 지역을 선택하세요</h2>
         <S.InputWrapper>
           <S.LabelContainer>
-            {regions.adsido.name && (
+            {region.sido && (
               <LabelButton
-                value={regions.adsido.name}
-                onClick={() => handleRemoveAd('adsido')}
+                value={region.sido}
+                onClick={() => handleSelectRegion('sido', '')}
                 type="secondary"
               />
             )}
-            {regions.adsigg.name && (
+            {region.sigg && (
               <LabelButton
-                value={regions.adsigg.name}
-                onClick={() => handleRemoveAd('adsigg')}
+                value={region.sigg}
+                onClick={() => handleSelectRegion('sigg', '')}
                 type="secondary"
               />
             )}
-            {regions.ademd.name && (
+            {region.emd && (
               <LabelButton
-                value={regions.ademd.name}
-                onClick={() => handleRemoveAd('ademd')}
-                type="secondary"
-              />
-            )}
-            {regions.adri.name && (
-              <LabelButton
-                value={regions.adri.name}
-                onClick={() => handleRemoveAd('adri')}
+                value={region.emd}
+                onClick={() => handleSelectRegion('emd', '')}
                 type="secondary"
               />
             )}
           </S.LabelContainer>
         </S.InputWrapper>
 
-        {!!regions.adsido.name && (
+        {!!region.sido && (
           <S.PlaceWrapper>
             <h3>기록할 장소를 선택하세요</h3>
             <Input
@@ -200,7 +162,7 @@ export default function SearchPlace() {
           <Select
             ref={selectRef}
             scrollRef={hasNextPage ? scrollRef : null}
-            options={searchKeywordData?.pages
+            options={searchKeywordData.pages
               .flatMap(data => data.documents)
               .map(option => ({
                 id: option.id,
@@ -211,34 +173,9 @@ export default function SearchPlace() {
           />
         ) : (
           <S.Cascader>
-            {adsido.length > 0 && (
-              <RegionList
-                data={adsido}
-                selected={regions.adsido}
-                onSelect={data => handleClickAd({ ...data, type: 'adsido' })}
-              />
-            )}
-            {adsigg.length > 0 && (
-              <RegionList
-                data={adsigg}
-                selected={regions.adsigg}
-                onSelect={data => handleClickAd({ ...data, type: 'adsigg' })}
-              />
-            )}
-            {ademd.length > 0 && (
-              <RegionList
-                data={ademd}
-                selected={regions.ademd}
-                onSelect={data => handleClickAd({ ...data, type: 'ademd' })}
-              />
-            )}
-            {adri.length > 0 && (
-              <RegionList
-                data={adri}
-                selected={regions.adri}
-                onSelect={data => handleClickAd({ ...data, type: 'adri' })}
-              />
-            )}
+            {sidoList.length > 0 && renderSelect(sidoList, 'sido', region.sido)}
+            {siggList.length > 0 && renderSelect(siggList, 'sigg', region.sigg)}
+            {emdList.length > 0 && renderSelect(emdList, 'emd', region.emd)}
           </S.Cascader>
         )}
       </S.MainWrapper>
