@@ -16,8 +16,9 @@ import { useIntersectionObserver } from '@/hooks';
 import useRecordInfo from '@/stores/use-record-info';
 
 import LabelButton from './components/LabelButton';
-import useGetRegions, { Region } from './hooks/use-get-regions';
+import useGetRegions from './hooks/use-get-regions';
 import useManageGeocoder from './hooks/use-manage-geocoder';
+import useManageRegion, { Region } from './hooks/use-manage-region';
 import useSelectPlace from './hooks/use-select-place';
 import * as S from './index.style';
 
@@ -26,11 +27,11 @@ export default function SearchPlace() {
   const selectRef = useRef<HTMLDivElement>(null);
   const prevRegionsRef = useRef<Region | null>(null);
 
+  const { regionState, regionStateDispatch } = useManageRegion();
   const { coords, selectedPlace } = useRecordInfo(state => state);
 
   const [searchText, setSearchText] = useState('');
   const [debouncedText, setDebouncedText] = useState('');
-  const [region, setRegion] = useState<Region>({ emd: '', sigg: '', sido: '' });
   const [isShow, setIsShow] = useState(false);
 
   const {
@@ -43,7 +44,7 @@ export default function SearchPlace() {
     query: debouncedText,
   });
 
-  const { sidoList, siggList, emdList } = useGetRegions(region);
+  const { sidoList, siggList, emdList } = useGetRegions(regionState);
   const { handleSelectPlace, handleDeletePlace } = useSelectPlace();
   const { geocode } = useManageGeocoder();
   const { observedTargetRef: scrollRef } = useIntersectionObserver({ hasNextPage, fetchNextPage });
@@ -67,14 +68,14 @@ export default function SearchPlace() {
   }, [searchKeywordData]);
 
   useEffect(() => {
-    if (!isEqual(prevRegionsRef.current, region)) {
+    if (!isEqual(prevRegionsRef.current, regionState)) {
       const setGeocode = async () => {
-        await geocode(`${region.sido} ${region.sigg} ${region.emd}`);
+        await geocode(`${regionState.sido} ${regionState.sigg} ${regionState.emd}`);
       };
       setGeocode();
-      prevRegionsRef.current = region;
+      prevRegionsRef.current = regionState;
     }
-  }, [region, geocode]);
+  }, [regionState, geocode]);
 
   const debouncedSearchText = useCallback(
     debounce((value: string) => setDebouncedText(value), 300),
@@ -86,14 +87,16 @@ export default function SearchPlace() {
     debouncedSearchText(e.target.value);
   };
 
-  const handleSelectRegion = useCallback((key: keyof Region, value: string) => {
-    setRegion(prevState => ({
-      ...prevState,
-      [key]: value,
-      ...(key !== 'emd' && { emd: '' }),
-      ...(key === 'sido' && { sigg: '', emd: '' }),
-    }));
-  }, []);
+  const handleSelectRegion = useCallback(
+    (key: keyof Region, value: string) => {
+      if (value === '') {
+        regionStateDispatch({ type: 'DELETE_REGION', key });
+      } else {
+        regionStateDispatch({ type: 'SET_REGION', key, payload: value });
+      }
+    },
+    [regionStateDispatch],
+  );
 
   const renderSelect = (options: string[], key: keyof Region, selectedValue: string) => (
     <Select
@@ -109,23 +112,23 @@ export default function SearchPlace() {
         <h2>기록할 여행 지역을 선택하세요</h2>
         <S.InputWrapper>
           <S.LabelContainer>
-            {region.sido && (
+            {regionState.sido && (
               <LabelButton
-                value={region.sido}
+                value={regionState.sido}
                 onClick={() => handleSelectRegion('sido', '')}
                 type="secondary"
               />
             )}
-            {region.sigg && (
+            {regionState.sigg && (
               <LabelButton
-                value={region.sigg}
+                value={regionState.sigg}
                 onClick={() => handleSelectRegion('sigg', '')}
                 type="secondary"
               />
             )}
-            {region.emd && (
+            {regionState.emd && (
               <LabelButton
-                value={region.emd}
+                value={regionState.emd}
                 onClick={() => handleSelectRegion('emd', '')}
                 type="secondary"
               />
@@ -133,7 +136,7 @@ export default function SearchPlace() {
           </S.LabelContainer>
         </S.InputWrapper>
 
-        {!!region.sido && (
+        {!!regionState.sido && (
           <S.PlaceWrapper>
             <h3>기록할 장소를 선택하세요</h3>
             <Input
@@ -173,9 +176,9 @@ export default function SearchPlace() {
           />
         ) : (
           <S.Cascader>
-            {sidoList.length > 0 && renderSelect(sidoList, 'sido', region.sido)}
-            {siggList.length > 0 && renderSelect(siggList, 'sigg', region.sigg)}
-            {emdList.length > 0 && renderSelect(emdList, 'emd', region.emd)}
+            {sidoList.length > 0 && renderSelect(sidoList, 'sido', regionState.sido)}
+            {siggList.length > 0 && renderSelect(siggList, 'sigg', regionState.sigg)}
+            {emdList.length > 0 && renderSelect(emdList, 'emd', regionState.emd)}
           </S.Cascader>
         )}
       </S.MainWrapper>
