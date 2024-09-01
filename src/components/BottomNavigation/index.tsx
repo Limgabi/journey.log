@@ -31,7 +31,7 @@ export default function BottomNavigation() {
         <MENU
           key={menu.value}
           onClick={() => route.push(menu.value)}
-          current={pathname === menu.value}
+          $current={pathname === menu.value}
         >
           <Icon
             icon={menu.icon}
@@ -59,7 +59,7 @@ const NavBar = styled.div`
   box-shadow: 0px -1px 8px 0px rgba(0, 0, 0, 0.1);
 `;
 
-const MENU = styled.div<{ current: boolean }>`
+const MENU = styled.div<{ $current: boolean }>`
   display: flex;
   flex-direction: column;
   gap: 0.8rem;
@@ -69,8 +69,8 @@ const MENU = styled.div<{ current: boolean }>`
 
   cursor: pointer;
 
-  ${({ current, theme }) =>
-    current &&
+  ${({ $current, theme }) =>
+    $current &&
     css`
       color: ${theme.colors.greyScale.coolGray_6};
     `}

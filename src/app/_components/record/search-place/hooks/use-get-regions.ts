@@ -4,11 +4,7 @@ import { collection, getDocs } from 'firebase/firestore';
 
 import { firestore } from '@/firebase/firebasedb';
 
-export interface Region {
-  emd: string;
-  sigg: string;
-  sido: string;
-}
+import { Region } from './use-manage-region';
 
 export default function useGetRegions(region: Region) {
   const { sigg, sido } = region;
