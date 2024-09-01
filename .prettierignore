@@ -1,0 +1,12 @@
+**/.git
+**/.svn
+**/.hg
+node_modules
+dist
+.next
+yarn.lock
+yarn-error.log
+package.json
+.gihbub/*
+**/.md
+ISSUE_TEMPLATE
