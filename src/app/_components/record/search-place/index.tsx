@@ -5,6 +5,7 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 
 import { debounce, isEqual } from 'lodash';
+import styled, { css } from 'styled-components';
 
 import { useGetSearchKeywordAPI } from '@/app/_api/search';
 import Button from '@/components/Button';
@@ -162,18 +163,26 @@ export default function SearchPlace() {
         )}
 
         {searchKeywordData?.pages && isShow ? (
-          <Select
-            ref={selectRef}
-            scrollRef={hasNextPage ? scrollRef : null}
-            options={searchKeywordData.pages
+          <SelectWrapper ref={selectRef}>
+            {searchKeywordData.pages
               .flatMap(data => data.documents)
               .map(option => ({
                 id: option.id,
                 value: option.place_name,
-              }))}
-            selected={selectedPlace}
-            onSelect={handleSelectPlace}
-          />
+                addressName: option.address_name,
+              }))
+              .map(option => (
+                <SelectOption
+                  key={option.id}
+                  selected={selectedPlace.some(selectedOption => selectedOption.id === option.id)}
+                  onClick={() => handleSelectPlace(option)}
+                >
+                  <div className="place">{option.value}</div>
+                  <div className="address">{option.addressName}</div>
+                </SelectOption>
+              ))}
+            {scrollRef && <ScrollTrigger ref={scrollRef} />}
+          </SelectWrapper>
         ) : (
           <S.Cascader>
             {sidoList.length > 0 && renderSelect(sidoList, 'sido', regionState.sido)}
@@ -191,3 +200,57 @@ export default function SearchPlace() {
     </MotionDiv>
   );
 }
+
+const SelectWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+  max-height: 40rem;
+  padding: 0.4rem;
+
+  background-color: ${({ theme }) => theme.colors.greyScale.grayScale_0};
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+  box-shadow:
+    0px 6px 16px 0px rgba(0, 0, 0, 0.08),
+    0px 3px 6px -4px rgba(0, 0, 0, 0.12),
+    0px 9px 28px 8px rgba(0, 0, 0, 0.05);
+
+  overflow-y: auto;
+`;
+
+const SelectOption = styled.div<{ selected: boolean }>`
+  display: flex;
+  flex-direction: column;
+
+  padding: 0.6rem 1.2rem;
+  border-radius: ${({ theme }) => theme.borderRadius.sm};
+
+  color: ${({ theme }) => theme.colors.greyScale.warmGray_6};
+  font-size: 1.4rem;
+
+  cursor: pointer;
+
+  &:hover {
+    background-color: #0000000f;
+  }
+
+  ${({ selected, theme }) =>
+    selected &&
+    css`
+      background-color: ${theme.colors.greyScale.grayScale_1};
+      color: ${theme.colors.primary.blue_5};
+    `}
+
+  .place {
+    font-weight: 600;
+  }
+  .address {
+    font-size: 1.2rem;
+    color: ${({ theme }) => theme.colors.greyScale.warmGray_3};
+  }
+`;
+
+const ScrollTrigger = styled.div`
+  height: 1px !important;
+  width: 100%;
+`;
