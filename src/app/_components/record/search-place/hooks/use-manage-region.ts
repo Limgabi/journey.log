@@ -1,6 +1,7 @@
 import { useReducer } from 'react';
 
 export interface Region {
+  id: number;
   sido: string;
   sigg: string;
   emd: string;
@@ -12,6 +13,7 @@ type ManageRegionAction =
 
 export default function useManageRegion() {
   const initialState: Region = {
+    id: 0,
     sido: '',
     sigg: '',
     emd: '',

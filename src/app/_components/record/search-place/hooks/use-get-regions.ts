@@ -1,8 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
 
-import { collection, getDocs } from 'firebase/firestore';
-
-import { firestore } from '@/firebase/firebasedb';
+import supabase from '@/app/supabase';
 
 import { Region } from './use-manage-region';
 
@@ -14,11 +12,30 @@ export default function useGetRegions(region: Region) {
   const [siggList, setSiggList] = useState<string[]>([]);
   const [emdList, setEmdList] = useState<string[]>([]);
 
-  const getInitDistrict = useCallback(async () => {
-    const querySnapshot = await getDocs(collection(firestore, 'district'));
-    const data = querySnapshot.docs.map(doc => doc.data())[0];
-    setRegions(data.district);
-  }, []);
+  const getInitDistrict = async () => {
+    let allData: Region[] = [];
+    let from = 0;
+    let to = 999;
+    let moreData = true;
+
+    while (moreData) {
+      const { data, error } = await supabase.from('district').select('*').range(from, to); // 페이징으로 데이터를 1000개씩 가져옴
+
+      if (error) {
+        break;
+      }
+
+      if (data.length > 0) {
+        allData = [...allData, ...data];
+        from += 1000;
+        to += 1000;
+      } else {
+        moreData = false;
+      }
+    }
+
+    setRegions(allData);
+  };
 
   const updateSidoList = useCallback(() => {
     setSidoList(Array.from(new Set(regions.map(region => region.sido))));
