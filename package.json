@@ -13,6 +13,7 @@
 		"lint": "next lint --fix"
 	},
 	"dependencies": {
+		"@supabase/supabase-js": "^2.45.3",
 		"@tanstack/react-query": "^5.37.1",
 		"axios": "^1.7.2",
 		"firebase": "^10.12.3",
