@@ -40,7 +40,7 @@ export default function Upload() {
       const uploadResult = await uploadBytes(imageRef, file);
       const downloadURL = await getDownloadURL(uploadResult.ref);
 
-      return { fileName, downloadURL };
+      return downloadURL;
     });
 
     const uploadedImages = await Promise.all(uploadPromises);
@@ -49,7 +49,7 @@ export default function Upload() {
     const { data, error } = await supabase.from('records').insert([
       {
         id: uuidv4(),
-        coordinates: JSON.stringify(coords),
+        coordinates: coords,
         created_at: new Date().toISOString(),
         images: uploadedImages ? JSON.stringify(uploadedImages) : null,
         content,

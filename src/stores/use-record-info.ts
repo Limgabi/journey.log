@@ -10,13 +10,13 @@ export interface Image {
 export interface RecordInfoState {
   coords: { lat: number; lng: number };
   selectedPlace: SelectedPlace[];
-  images: Image[];
+  images: string[];
 }
 
 interface RecordInfoAction {
   setCoords: ({ lat, lng }: { lat: number; lng: number }) => void;
   setSelectedPlace: (update: (prev: SelectedPlace[]) => SelectedPlace[]) => void;
-  setImages: (images: Image[]) => void;
+  setImages: (images: string[]) => void;
 }
 
 const useRecordInfo = create<RecordInfoState & RecordInfoAction>(set => ({

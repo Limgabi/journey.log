@@ -31,7 +31,7 @@ export type Database = {
           created_at: string;
           id: string;
           images: string | null;
-          visited_places: Json | null;
+          visited_places: Json;
         };
         Insert: {
           content?: string | null;
@@ -39,7 +39,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           images?: string | null;
-          visited_places?: Json | null;
+          visited_places: Json;
         };
         Update: {
           content?: string | null;
@@ -47,7 +47,7 @@ export type Database = {
           created_at?: string;
           id?: string;
           images?: string | null;
-          visited_places?: Json | null;
+          visited_places?: Json;
         };
         Relationships: [];
       };
