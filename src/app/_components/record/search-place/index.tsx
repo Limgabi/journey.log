@@ -4,10 +4,11 @@ import { useState, useEffect, useRef, useCallback } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { debounce, isEqual } from 'lodash';
+import { debounce } from 'lodash';
 import styled, { css } from 'styled-components';
 
 import { useGetSearchKeywordAPI } from '@/app/_api/search';
+import { useGetPlaceCoordsAPI } from '@/app/_api/search/useGetPlaceCoordsAPI';
 import Button from '@/components/Button';
 import Input from '@/components/Input';
 import { MotionDiv } from '@/components/Motion';
@@ -18,7 +19,6 @@ import useRecordInfo from '@/stores/use-record-info';
 
 import LabelButton from './components/LabelButton';
 import useGetRegions from './hooks/use-get-regions';
-import useManageGeocoder from './hooks/use-manage-geocoder';
 import useManageRegion, { Region } from './hooks/use-manage-region';
 import useSelectPlace from './hooks/use-select-place';
 import * as S from './index.style';
@@ -26,10 +26,9 @@ import * as S from './index.style';
 export default function SearchPlace() {
   const router = useRouter();
   const selectRef = useRef<HTMLDivElement>(null);
-  const prevRegionsRef = useRef<Region | null>(null);
 
   const { regionState, regionStateDispatch } = useManageRegion();
-  const { coords, selectedPlace } = useRecordInfo(state => state);
+  const { coords, selectedPlace, setCoords } = useRecordInfo(state => state);
 
   const [searchText, setSearchText] = useState('');
   const [debouncedText, setDebouncedText] = useState('');
@@ -45,9 +44,13 @@ export default function SearchPlace() {
     query: debouncedText,
   });
 
+  const { data: placeCoords } = useGetPlaceCoordsAPI({
+    params: regionState,
+  });
+
   const { sidoList, siggList, emdList } = useGetRegions(regionState);
+
   const { handleSelectPlace, handleDeletePlace } = useSelectPlace();
-  const { geocode } = useManageGeocoder();
   const { observedTargetRef: scrollRef } = useIntersectionObserver({ hasNextPage, fetchNextPage });
 
   // 외부 클릭 감지
@@ -69,14 +72,10 @@ export default function SearchPlace() {
   }, [searchKeywordData]);
 
   useEffect(() => {
-    if (!isEqual(prevRegionsRef.current, regionState)) {
-      const setGeocode = async () => {
-        await geocode(`${regionState.sido} ${regionState.sigg} ${regionState.emd}`);
-      };
-      setGeocode();
-      prevRegionsRef.current = regionState;
+    if (placeCoords) {
+      setCoords(placeCoords);
     }
-  }, [regionState, geocode]);
+  }, [placeCoords]);
 
   const debouncedSearchText = useCallback(
     debounce((value: string) => setDebouncedText(value), 300),

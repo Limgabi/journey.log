@@ -1,8 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 
-import supabase from '@/app/supabase';
-
 import { Region } from './use-manage-region';
+import supabase from '../../../../../../supabase';
+
+type DistrictTableData = {
+  id: number;
+  sido: string;
+  sigg: string | null;
+  emd: string | null;
+};
 
 export default function useGetRegions(region: Region) {
   const { sigg, sido } = region;
@@ -25,8 +31,15 @@ export default function useGetRegions(region: Region) {
         break;
       }
 
-      if (data.length > 0) {
-        allData = [...allData, ...data];
+      // TODO: sigg 없고 emd 있는 경우 예외처리
+      if (data && data.length > 0) {
+        const transformedData = data.map((item: DistrictTableData) => ({
+          ...item,
+          sigg: item.sigg || '',
+          emd: item.emd || '',
+        }));
+
+        allData = [...allData, ...transformedData];
         from += 1000;
         to += 1000;
       } else {
