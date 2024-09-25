@@ -4,7 +4,6 @@ import { ChangeEvent, useState } from 'react';
 
 import { useRouter } from 'next/navigation';
 
-import { addDoc, collection } from 'firebase/firestore';
 import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import styled from 'styled-components';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,8 +12,10 @@ import Button from '@/components/Button';
 import Image from '@/components/Image';
 import { MotionDiv } from '@/components/Motion';
 import { URL_PATH } from '@/constants/url-path';
-import { firestore, storage } from '@/firebase/firebasedb';
+import { storage } from '@/firebase/firebasedb';
 import useRecordInfo from '@/stores/use-record-info';
+
+import supabase from '../../../../../supabase';
 
 export default function Upload() {
   const route = useRouter();
@@ -45,14 +46,23 @@ export default function Upload() {
     const uploadedImages = await Promise.all(uploadPromises);
     setImages(uploadedImages);
 
-    await addDoc(collection(firestore, 'JourneyEntries'), {
-      location: coords,
-      places_visited: selectedPlace,
-      images: uploadedImages,
-      content,
-    });
+    const { data, error } = await supabase.from('records').insert([
+      {
+        id: uuidv4(),
+        coordinates: JSON.stringify(coords),
+        created_at: new Date().toISOString(),
+        images: uploadedImages ? JSON.stringify(uploadedImages) : null,
+        content,
+        visited_places: JSON.stringify(selectedPlace),
+      },
+    ]);
 
-    alert('이미지 업로드 성공');
+    if (error) {
+      console.error('Insert error:', error);
+    } else {
+      console.log('Insert successful:', data);
+    }
+
     setImagePreviews([]);
     setImageFiles([]);
     route.replace(URL_PATH.HOME);
