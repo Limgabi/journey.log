@@ -12,6 +12,10 @@ export const colors = {
     green: '#1cd88a',
     yellow: '#fac02d',
     red: '#fe2e01',
+
+    success: '#52c41a',
+    error: '#ff4d4f',
+    warning: '#faad14',
   },
 
   greyScale: {
