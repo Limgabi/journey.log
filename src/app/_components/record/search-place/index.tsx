@@ -82,11 +82,6 @@ export default function SearchPlace() {
     [],
   );
 
-  const handleChangeSearchText = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchText(e.target.value);
-    debouncedSearchText(e.target.value);
-  };
-
   const handleSelectRegion = useCallback(
     (key: keyof Region, value: string) => {
       if (value === '') {
@@ -142,7 +137,8 @@ export default function SearchPlace() {
             <Input
               type="search"
               value={searchText}
-              handleChange={handleChangeSearchText}
+              setValue={setSearchText}
+              onChangeCallback={() => debouncedSearchText(searchText)}
               onClick={() => {
                 if (!isShow && searchKeywordData) {
                   setIsShow(true);
