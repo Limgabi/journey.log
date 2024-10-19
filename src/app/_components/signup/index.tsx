@@ -21,23 +21,14 @@ export default function SignUp() {
       </LogoWrapper>
       <InputWrapper>
         <div className="section">
-          <Input value={id} handleChange={e => setId(e.target.value)} placeholder="아이디" />
+          <Input value={id} setValue={setId} placeholder="아이디" />
           <Button onClick={() => {}}>중복 확인</Button>
         </div>
         <div className="section">
-          <Input
-            value={nickname}
-            handleChange={e => setNickname(e.target.value)}
-            placeholder="닉네임"
-          />
+          <Input value={nickname} setValue={setNickname} placeholder="닉네임" />
           <Button onClick={() => {}}>중복 확인</Button>
         </div>
-        <Input
-          value={pwd}
-          handleChange={e => setPwd(e.target.value)}
-          placeholder="비밀번호"
-          type="password"
-        />
+        <Input value={pwd} setValue={setPwd} placeholder="비밀번호" type="password" />
       </InputWrapper>
 
       <Button onClick={() => {}} disabled={!!!id || !!!pwd}>

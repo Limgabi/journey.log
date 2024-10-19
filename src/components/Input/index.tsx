@@ -5,10 +5,12 @@ import Icon from '../Icon';
 type InputType = 'search' | 'text' | 'password';
 type InputStatus = 'error' | 'success' | 'warning';
 
-interface InputProps {
+interface InputProps<T> {
   type?: InputType;
-  value: string | number;
-  handleChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  value: T;
+  setValue?: React.Dispatch<React.SetStateAction<T>>;
+  onChangeCallback?: VoidFunction;
+  onClearCallback?: VoidFunction;
   handleSearch?: () => void;
   onClick?: () => void;
   placeholder?: string;
@@ -16,16 +18,30 @@ interface InputProps {
   message?: string;
 }
 
-export default function Input({
+export default function Input<T extends string | number>({
   type = 'text',
   value,
-  handleChange,
+  setValue,
+  onChangeCallback,
   handleSearch,
   onClick,
   placeholder,
   status,
   message,
-}: InputProps) {
+}: InputProps<T>) {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setValue?.(e.target.value as T);
+    onChangeCallback?.();
+  };
+
+  const handleClear = () => {
+    if (typeof value === 'string') {
+      setValue?.('' as T); // string일 때 빈 문자열로
+    } else if (typeof value === 'number') {
+      setValue?.(0 as T); // number일 때 0으로
+    }
+  };
+
   return (
     <InputWrapper>
       <InputContainer status={status}>
@@ -36,6 +52,7 @@ export default function Input({
           placeholder={placeholder}
           type={type}
         />
+        {value && <Icon icon="Clear" width={14} height={14} onClick={handleClear} />}
         {type === 'search' && (
           <button onClick={handleSearch}>
             <Icon icon="Search" width={14} height={14} cursor="pointer" />
