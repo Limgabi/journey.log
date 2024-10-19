@@ -16,6 +16,7 @@ interface InputProps<T> {
   placeholder?: string;
   status?: InputStatus;
   message?: string;
+  disabled?: boolean;
 }
 
 export default function Input<T extends string | number>({
@@ -28,6 +29,7 @@ export default function Input<T extends string | number>({
   placeholder,
   status,
   message,
+  disabled,
 }: InputProps<T>) {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setValue?.(e.target.value as T);
@@ -51,8 +53,13 @@ export default function Input<T extends string | number>({
           onClick={onClick}
           placeholder={placeholder}
           type={type}
+          disabled={disabled}
         />
-        {value && <Icon icon="Clear" width={14} height={14} onClick={handleClear} />}
+        {value && !disabled && (
+          <button onClick={handleClear}>
+            <Icon icon="Clear" width={14} height={14} onClick={handleClear} cursor="pointer" />
+          </button>
+        )}
         {type === 'search' && (
           <button onClick={handleSearch}>
             <Icon icon="Search" width={14} height={14} cursor="pointer" />
@@ -73,11 +80,11 @@ const InputWrapper = styled.div`
 const InputContainer = styled.div<{ status?: InputStatus }>`
   display: flex;
   align-items: center;
-  width: 100%;
   border: 0.1rem solid ${({ theme }) => theme.colors.greyScale.grayScale_2};
   border-radius: ${({ theme }) => theme.borderRadius.sm};
 
   input {
+    flex-grow: 1;
     padding: 0.8rem;
     border-radius: ${({ theme }) => theme.borderRadius.sm};
     border: none;
