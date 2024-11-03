@@ -1,10 +1,14 @@
 import { useEffect, useState, useCallback } from 'react';
 
-import { collection, getDocs } from 'firebase/firestore';
-
-import { firestore } from '@/firebase/firebasedb';
-
 import { Region } from './use-manage-region';
+import supabase from '../../../../../../supabase';
+
+type DistrictTableData = {
+  id: number;
+  sido: string;
+  sigg: string | null;
+  emd: string | null;
+};
 
 export default function useGetRegions(region: Region) {
   const { sigg, sido } = region;
@@ -14,11 +18,37 @@ export default function useGetRegions(region: Region) {
   const [siggList, setSiggList] = useState<string[]>([]);
   const [emdList, setEmdList] = useState<string[]>([]);
 
-  const getInitDistrict = useCallback(async () => {
-    const querySnapshot = await getDocs(collection(firestore, 'district'));
-    const data = querySnapshot.docs.map(doc => doc.data())[0];
-    setRegions(data.district);
-  }, []);
+  const getInitDistrict = async () => {
+    let allData: Region[] = [];
+    let from = 0;
+    let to = 999;
+    let moreData = true;
+
+    while (moreData) {
+      const { data, error } = await supabase.from('district').select('*').range(from, to); // 페이징으로 데이터를 1000개씩 가져옴
+
+      if (error) {
+        break;
+      }
+
+      // TODO: sigg 없고 emd 있는 경우 예외처리
+      if (data && data.length > 0) {
+        const transformedData = data.map((item: DistrictTableData) => ({
+          ...item,
+          sigg: item.sigg || '',
+          emd: item.emd || '',
+        }));
+
+        allData = [...allData, ...transformedData];
+        from += 1000;
+        to += 1000;
+      } else {
+        moreData = false;
+      }
+    }
+
+    setRegions(allData);
+  };
 
   const updateSidoList = useCallback(() => {
     setSidoList(Array.from(new Set(regions.map(region => region.sido))));

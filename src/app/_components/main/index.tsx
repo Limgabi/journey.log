@@ -3,22 +3,21 @@
 import { useEffect, useState } from 'react';
 
 import axios from 'axios';
-import { collection, getDocs } from 'firebase/firestore';
 import styled from 'styled-components';
 
 import Image from '@/components/Image';
-import { firestore } from '@/firebase/firebasedb';
-import { Image as ImageType } from '@/stores/use-record-info';
 
+import supabase from '../../../../supabase';
 import { SelectedPlace } from '../record/search-place/hooks/use-select-place';
 
 interface RecordDetail {
   id: string;
-  images: ImageType[];
-  location: { lng: number; lat: number };
+  images: string[];
+  coordinates: { lng: number; lat: number };
   address: string;
-  places_visited: SelectedPlace[];
+  visited_places: SelectedPlace[];
   content: string;
+  created_at: string;
 }
 
 export default function Main() {
@@ -30,46 +29,47 @@ export default function Main() {
    */
   const getRecords = async () => {
     setIsLoading(true);
-    try {
-      const recordRef = collection(firestore, 'JourneyEntries');
-      const recordSnapshot = await getDocs(recordRef);
+    const { data: records } = await supabase.from('records').select('*');
 
-      const recordsArray = await Promise.all(
-        recordSnapshot.docs.map(async doc => {
-          const data = doc.data();
-          const { lng, lat } = data.location;
+    if (records) {
+      try {
+        const recordsArray = await Promise.all(
+          records?.map(async record => {
+            try {
+              const { coordinates } = record;
+              const { lng, lat } = coordinates as { lng: number; lat: number };
 
-          if (lng && lat) {
-            const response = await axios.get(
-              'https://dapi.kakao.com/v2/local/geo/coord2address.json',
-              {
-                headers: {
-                  Authorization: `KakaoAK ${process.env.NEXT_PUBLIC_KAKAO_SEARCH_API_KEY}`,
-                },
-                params: { x: lng, y: lat },
-              },
-            );
-
-            return {
-              id: doc.id,
-              ...data,
-              address: response.data?.documents?.[0]?.address?.address_name || '',
-            } as RecordDetail;
-          } else {
-            return {
-              id: doc.id,
-              ...data,
-              address: '',
-            } as RecordDetail;
-          }
-        }),
-      );
-
-      setRecords(recordsArray);
-    } catch (error) {
-      console.error('Error getting records: ', error);
-    } finally {
-      setIsLoading(false);
+              if (coordinates) {
+                const response = await axios.get(
+                  'https://dapi.kakao.com/v2/local/geo/coord2address.json',
+                  {
+                    headers: {
+                      Authorization: `KakaoAK ${process.env.NEXT_PUBLIC_KAKAO_SEARCH_API_KEY}`,
+                    },
+                    params: { x: lng, y: lat },
+                  },
+                );
+                return {
+                  ...record,
+                  coordinates,
+                  images: JSON.parse(record?.images as string) as string[],
+                  visited_places: JSON.parse(record?.visited_places as string) as SelectedPlace[],
+                  address: response.data?.documents?.[0]?.address?.address_name || '',
+                } as RecordDetail;
+              }
+            } catch (error) {
+              console.error('Failed to parse coordinates:', error);
+              // 파싱 실패 시 처리 (null이나 기본 값 반환 등)
+              return null;
+            }
+          }),
+        );
+        setRecords(recordsArray as RecordDetail[]);
+      } catch (error) {
+        console.error('Error getting records: ', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -86,21 +86,13 @@ export default function Main() {
           <PlaceContainer>
             {record.address}
             <TagContainer>
-              {record.places_visited.map(place => (
-                <Tag key={place.id}>{place.value}</Tag>
-              ))}
+              {record.visited_places?.map(place => <Tag key={place.id}>{place.value}</Tag>)}
             </TagContainer>
           </PlaceContainer>
 
           <ImageContainer>
             {record.images.map(image => (
-              <Images
-                key={image.fileName}
-                src={image.downloadURL}
-                alt="image"
-                width={200}
-                height={300}
-              />
+              <Images key={image} src={image} alt="image" width={200} height={300} />
             ))}
           </ImageContainer>
           {record.content && <Content>{record.content}</Content>}

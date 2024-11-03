@@ -18,13 +18,8 @@ export default function SignIn() {
         <SubText>나만의 여행을 기록하고 공유하세요.</SubText>
       </LogoWrapper>
       <InputWrapper>
-        <Input value={id} handleChange={e => setId(e.target.value)} placeholder="아이디" />
-        <Input
-          value={pwd}
-          handleChange={e => setPwd(e.target.value)}
-          placeholder="비밀번호"
-          type="password"
-        />
+        <Input value={id} setValue={setId} placeholder="아이디" />
+        <Input value={pwd} setValue={setPwd} placeholder="비밀번호" type="password" />
       </InputWrapper>
 
       <Button onClick={() => {}} disabled={!!!id || !!!pwd}>
